@@ -1,0 +1,146 @@
+"use client";
+
+import Link from "next/link";
+import { useState } from "react";
+import { useStore } from "@/lib/context/StoreContext";
+import { forgotPasswordSchema } from "@/lib/validations/auth";
+import { validateData, getFieldError } from "@/lib/securite/validation-helper";
+import { Mail, ArrowRight, CheckCircle2, KeyRound, ArrowLeft } from "lucide-react";
+
+export default function ForgotPasswordPage() {
+  const { requestPasswordReset } = useStore();
+  const [email, setEmail] = useState("");
+  const [errors, setErrors] = useState({});
+  const [generalError, setGeneralError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [resetSent, setResetSent] = useState(null);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (loading) return;
+
+    setGeneralError("");
+    setErrors({});
+    setLoading(true);
+
+    try {
+      const validation = await validateData(forgotPasswordSchema, { email });
+      if (!validation.success) {
+        setErrors(validation.errors);
+        setLoading(false);
+        return;
+      }
+
+      const res = requestPasswordReset(validation.data.email);
+      setResetSent(res);
+    } catch (err) {
+      setGeneralError(err.message || "Impossible de traiter la demande.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <main className="auth-exact-page">
+      <div className="auth-exact-split">
+        {/* Left Form Column */}
+        <div className="auth-exact-form-side">
+          {/* Subtle Ambient Background Bubbles */}
+          <div className="auth-bubble-ambient bubble-1" />
+          <div className="auth-bubble-ambient bubble-2" />
+          <div className="auth-bubble-ambient bubble-3" />
+          <div className="auth-bubble-ambient bubble-4" />
+
+          {/* Logo Header (Enlarged & Centered) */}
+          <Link href="/" className="auth-exact-logo">
+            <img src="/logo/AgriMarket_logo.png" alt="AgriMarket" className="auth-exact-logo-icon" />
+            <div className="auth-exact-logo-text">
+              <span className="auth-exact-brand">AgriMarket</span>
+              <small className="auth-exact-subbrand">Marketplace</small>
+            </div>
+          </Link>
+
+          {/* Title */}
+          <h1 className="auth-exact-heading">Forgot password</h1>
+
+          <p style={{ textAlign: "center", fontSize: "13px", color: "#8c7798", marginTop: "-18px", marginBottom: "20px", maxWidth: "380px" }}>
+            Saisissez votre e-mail pour recevoir les instructions de réinitialisation.
+          </p>
+
+          {generalError && (
+            <div className="auth-exact-error" role="alert">
+              <span>{generalError}</span>
+            </div>
+          )}
+
+          {resetSent ? (
+            <div className="auth-success-pill-box" style={{ maxWidth: "380px", width: "100%", textAlign: "center" }}>
+              <CheckCircle2 width={44} style={{ color: "#22c55e", margin: "0 auto 10px auto" }} />
+              <h3 style={{ fontFamily: "var(--font-display)", fontSize: "22px", color: "#3b2042", margin: "0 0 6px 0" }}>Instructions envoyées !</h3>
+              <p style={{ fontSize: "13px", color: "#8c7798", marginBottom: "12px" }}>
+                Un e-mail de réinitialisation a été transmis à <strong>{email}</strong>.
+              </p>
+              
+             
+              <div style={{ marginTop: "16px", display: "flex", flexDirection: "column", gap: "10px" }}>
+                <Link 
+                  href={`/reinitialisation-mot-de-passe?token=${resetSent.token}`} 
+                  className="auth-exact-pink-btn"
+                >
+                  <KeyRound width={16} /> Réinitialiser mon mot de passe
+                </Link>
+              </div>
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit} className="auth-exact-form" noValidate>
+              <div className="auth-exact-field">
+                <label htmlFor="email-input">Email</label>
+                <div className="auth-exact-input-box">
+                  <Mail className="field-icon-svg" />
+                  <input
+                    id="email-input"
+                    type="email"
+                    name="email"
+                    value={email}
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                      if (errors.email) setErrors({});
+                    }}
+                    placeholder="Enter your email"
+                    className={getFieldError(errors, "email") ? "input-error" : ""}
+                    required
+                  />
+                </div>
+                {getFieldError(errors, "email") && (
+                  <span className="field-error-msg">{getFieldError(errors, "email")}</span>
+                )}
+              </div>
+
+              <button type="submit" className="auth-exact-pink-btn" disabled={loading}>
+                {loading ? (
+                  <span>Envoi en cours...</span>
+                ) : (
+                  <>
+                    <span>Envoyer les instructions</span> <ArrowRight width={16} />
+                  </>
+                )}
+              </button>
+            </form>
+          )}
+
+          {/* Footer Link */}
+          <div className="auth-exact-footer" style={{ marginTop: "20px" }}>
+            <Link href="/connexion" className="auth-exact-purple-link">
+              <ArrowLeft width={14} /> Back to login
+            </Link>
+          </div>
+        </div>
+
+        {/* Right Side Image */}
+        <div className="auth-exact-image-side">
+          <img src="/Images/pexels-introspectivedsgn-30836145.jpg" alt="AgriMarket marketplace agricole" className="auth-exact-img" />
+        </div>
+      </div>
+    </main>
+  );
+}

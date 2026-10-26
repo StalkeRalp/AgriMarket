@@ -1,0 +1,1399 @@
+{
+  "categories": [
+    {
+      "id": "cat-vivriers",
+      "slug": "vivriers",
+      "name": "Produits vivriers et agricoles",
+      "description": "Céréales, tubercules, légumineuses, fruits et légumes frais des terroirs camerounais."
+    },
+    {
+      "id": "cat-elevage",
+      "slug": "elevage",
+      "name": "Élevage et produits animaux",
+      "description": "Volailles, bétail, petits ruminants, aliments et produits de la ferme."
+    },
+    {
+      "id": "cat-semences",
+      "slug": "semences",
+      "name": "Semences, plants et pépinières",
+      "description": "Semences certifiées, rejets de plantain, boutures et plants d’arbres fruitiers."
+    },
+    {
+      "id": "cat-intrants",
+      "slug": "intrants",
+      "name": "Intrants agricoles",
+      "description": "Engrais minéraux, fertilisants bio, compost et solutions de traitement homologuées."
+    },
+    {
+      "id": "cat-materiel",
+      "slug": "materiel",
+      "name": "Matériel et équipements",
+      "description": "Outillage, pulvérisateurs, motopompes, irrigation et équipements agricoles."
+    },
+    {
+      "id": "cat-transformes",
+      "slug": "transformes",
+      "name": "Produits transformés",
+      "description": "Farines locales, huiles végétales pures, séchage et conserves artisanales."
+    }
+  ],
+  "brands": [
+    {
+      "id": "brand-foumbot",
+      "name": "Coopérative Maraîchère de Foumbot",
+      "location": "Foumbot (Ouest)"
+    },
+    {
+      "id": "brand-obala",
+      "name": "GIC Vivrier d’Obala",
+      "location": "Obala (Centre)"
+    },
+    {
+      "id": "brand-bafoussam",
+      "name": "Ferme Avicole des Hauts Plateaux",
+      "location": "Bafoussam (Ouest)"
+    },
+    {
+      "id": "brand-agricam",
+      "name": "AgriCam Intrants & Fertilisants",
+      "location": "Douala (Littoral)"
+    },
+    {
+      "id": "brand-nordagro",
+      "name": "Céréales & Légumineuses du Nord",
+      "location": "Garoua (Nord)"
+    },
+    {
+      "id": "brand-terroirbio",
+      "name": "Transformation Bio Cameroun",
+      "location": "Yaoundé (Centre)"
+    }
+  ],
+  "users": [
+    {
+      "id": "u-admin",
+      "name": "Administrateur AgriMarket",
+      "firstName": "Admin",
+      "lastName": "AgriMarket",
+      "email": "admin@agrimarket.cm",
+      "phone": "+237 600 000 000",
+      "role": "ADMIN",
+      "password": "admin123"
+    },
+    {
+      "id": "u-vendeur-foumbot",
+      "name": "Jean Njoya (Coop Foumbot)",
+      "firstName": "Jean",
+      "lastName": "Njoya",
+      "email": "vendeur@foumbot-coop.cm",
+      "phone": "+237 677 112 233",
+      "role": "CLIENT",
+      "isSeller": true,
+      "sellerProfile": {
+        "shopName": "Coopérative Maraîchère de Foumbot",
+        "city": "Foumbot",
+        "region": "Ouest",
+        "description": "Producteur de tomates fraîches, oignons, piments et légumes de saison en direct des exploitations de Foumbot.",
+        "phone": "+237 677 112 233"
+      },
+      "password": "vendeur123"
+    },
+    {
+      "id": "u-client-demo",
+      "name": "Acheteur Démo",
+      "firstName": "Acheteur",
+      "lastName": "Démo",
+      "email": "client@agrimarket.cm",
+      "phone": "+237 699 000 000",
+      "role": "CLIENT",
+      "isSeller": false,
+      "password": "demo123"
+    }
+  ],
+  "addresses": [
+    {
+      "id": "a1",
+      "label": "Maison",
+      "city": "Douala",
+      "address": "Bonamoussadi, repère Carrefour",
+      "phone": "+237 699 000 000"
+    }
+  ],
+  "reviews": [
+    {
+      "id": "rv-1",
+      "productId": "p1",
+      "name": "Aline",
+      "rating": 5,
+      "title": "Très belle couleur",
+      "comment": "Texture agréable et teinte facile à porter.",
+      "createdAt": "2026-08-03T09:00:00.000Z",
+      "approved": true
+    },
+    {
+      "id": "rv-2",
+      "productId": "p2",
+      "name": "Mireille",
+      "rating": 4,
+      "title": "Routine simple",
+      "comment": "J’aime la texture légère et la présentation du produit.",
+      "createdAt": "2026-08-01T12:30:00.000Z",
+      "approved": true
+    },
+    {
+      "id": "rv-3",
+      "productId": "p9",
+      "name": "Carine",
+      "rating": 5,
+      "title": "Pratique au quotidien",
+      "comment": "S’intègre facilement dans ma routine du matin.",
+      "createdAt": "2026-07-30T10:15:00.000Z",
+      "approved": true
+    }
+  ],
+  "notifications": [
+    {
+      "id": "notif-1",
+      "type": "ORDER",
+      "title": "Commande en cours d'expédition",
+      "message": "Votre rituel beauté 'Sérum Hydratant Eclat Intense' de la commande #ITX-2026-8942 a été remis au transporteur à Douala.",
+      "date": "2026-08-13T03:00:00.000Z",
+      "read": false,
+      "link": "/commandes",
+      "linkText": "Suivre mon colis",
+      "icon": "Package"
+    },
+    {
+      "id": "notif-2",
+      "type": "PROMO",
+      "title": "Invitation Exclusive : Ventes Privées Dior",
+      "message": "Bénéficiez de 20% de remise exceptionnelle sur l'ensemble de la gamme Dior Prestige avec le code privilège PRIVILEGE20.",
+      "date": "2026-08-12T03:00:00.000Z",
+      "read": false,
+      "link": "/catalogue?brand=DIOR",
+      "linkText": "Découvrir la sélection",
+      "icon": "Sparkles"
+    },
+    {
+      "id": "notif-3",
+      "type": "ORDER",
+      "title": "Commande confirmée avec succès",
+      "message": "Votre commande #ITX-2026-7815 d'un montant de 32 000 FCFA a bien été enregistrée et est en cours de préparation dans nos ateliers.",
+      "date": "2026-08-10T03:00:00.000Z",
+      "read": true,
+      "link": "/commandes",
+      "linkText": "Voir la commande",
+      "icon": "ShieldCheck"
+    }
+  ],
+  "orders": [
+    {
+      "id": "ITX-2026-8942",
+      "createdAt": "2026-08-12T14:20:00.000Z",
+      "status": "En cours de livraison",
+      "customer": {
+        "name": "Lelica Ange",
+        "email": "lelicaange@gmail.com",
+        "phone": "+237 600 000 000",
+        "city": "Douala",
+        "address": "Bonanjo, Avenue De Gaulle"
+      },
+      "items": [
+        {
+          "productId": "p9",
+          "name": "Sérum Or Régénérant Prestigieux",
+          "price": 34500,
+          "quantity": 1,
+          "image": "https://images.pexels.com/photos/4041392/pexels-photo-4041392.jpeg?auto=compress&w=900"
+        }
+      ],
+      "subtotal": 34500,
+      "shipping": 2000,
+      "total": 36500
+    }
+  ],
+  "blogPosts": [
+    {
+      "id": "post-1",
+      "slug": "reussir-campagne-mais-cameroun",
+      "title": "Comment réussir sa campagne de maïs pluvial au Cameroun",
+      "excerpt": "Conseils clés sur la préparation du sol, le choix des semences hybrides et le calendrier des semis.",
+      "content": "La réussite d’une parcelle de maïs dépend à 70% de la qualité de la semence et du respect des dates de semis par rapport aux premières pluies...",
+      "date": "2026-03-15",
+      "author": "Ing. Agronome Paul Mbida",
+      "image": "https://images.pexels.com/photos/547263/pexels-photo-547263.jpeg?auto=compress&w=900",
+      "readTime": "5 min"
+    },
+    {
+      "id": "post-2",
+      "slug": "guide-elevage-poulet-chair",
+      "title": "Guide pratique : Maximiser la rentabilité de son élevage avicole",
+      "excerpt": "Gestion thermique de la poussinière, transition alimentaire et hygiène sanitaire rigoureuse.",
+      "content": "L’aviculture au Cameroun offre des cycles courts très rentables, à condition de maîtriser la mortalité des 10 premiers jours et le ratio de provende...",
+      "date": "2026-03-22",
+      "author": "Dr. Vétérinaire Sandrine Fotso",
+      "image": "https://images.pexels.com/photos/2255459/pexels-photo-2255459.jpeg?auto=compress&w=900",
+      "readTime": "7 min"
+    },
+    {
+      "id": "post-3",
+      "slug": "fertilisation-organique-plantain",
+      "title": "Fertilisation et entretien d’une bananeraie-plantain à haut rendement",
+      "excerpt": "Utilisation combinée du compost, des fientes et du paillage pour doubler le poids de vos régimes.",
+      "content": "Le plantain est une culture gourmande en potassium et en matière organique. Le paillage protège les racines superficielles et maintient l humidité...",
+      "date": "2026-04-05",
+      "author": "GIC Vivrier d’Obala",
+      "image": "https://images.pexels.com/photos/2872755/pexels-photo-2872755.jpeg?auto=compress&w=900",
+      "readTime": "6 min"
+    }
+  ],
+  "infoPages": {
+    "about": {
+      "kicker": "À propos",
+      "title": "ITEXAL Beauty, une expérience pensée pour vous",
+      "lead": "Nous sélectionnons des produits beauté pour un quotidien sensoriel et responsable.",
+      "sections": [
+        [
+          "Notre mission",
+          "Offrir une sélection de cosmétiques et soins qui allient qualité, simplicité et plaisir d’utilisation."
+        ],
+        [
+          "Notre engagement",
+          "Favoriser des formules bien tolérées et des ingrédients choisis avec soin pour chaque routine."
+        ],
+        [
+          "Notre service",
+          "Accompagner chaque client avec une livraison rapide et une expérience d’achat claire."
+        ]
+      ]
+    },
+    "shipping": {
+      "kicker": "Livraison",
+      "title": "Livraison nationale rapide et sécurisée",
+      "lead": "Recevez vos commandes dans les meilleurs délais, où que vous soyez au Cameroun.",
+      "sections": [
+        [
+          "Délais",
+          "Les commandes sont préparées sous 24 heures et expédiées dans les 2 à 3 jours ouvrés."
+        ],
+        [
+          "Transport",
+          "Nous travaillons avec des transporteurs fiables pour surveiller chaque livraison."
+        ],
+        [
+          "Retours",
+          "Vous pouvez retourner un produit sous 14 jours si vous n’êtes pas satisfait."
+        ]
+      ]
+    },
+    "privacy": {
+      "kicker": "Confidentialité",
+      "title": "Vos données personnelles sont protégées",
+      "lead": "Nous respectons votre vie privée et n’utilisons vos informations qu’à des fins de service client.",
+      "sections": [
+        [
+          "Sécurité",
+          "Les informations de votre compte sont stockées de manière sécurisée et ne sont jamais partagées."
+        ],
+        [
+          "Utilisation",
+          "Nous utilisons votre adresse et votre téléphone uniquement pour la livraison et les notifications de commande."
+        ],
+        [
+          "Transparence",
+          "Vous pouvez demander la modification ou la suppression de vos données à tout moment."
+        ]
+      ]
+    },
+    "returns": {
+      "kicker": "Retours",
+      "title": "Retours simples et conditions claires",
+      "lead": "Nous facilitons le retour des articles non conformes ou insatisfaisants.",
+      "sections": [
+        [
+          "Conditions",
+          "Les produits doivent être retournés dans leur emballage d’origine et en bon état."
+        ],
+        [
+          "Délais",
+          "Vous disposez de 14 jours après la livraison pour initier un retour."
+        ],
+        [
+          "Remboursement",
+          "Une fois le retour validé, le remboursement est effectué rapidement."
+        ]
+      ]
+    },
+    "terms": {
+      "kicker": "Conditions générales",
+      "title": "Conditions générales de vente",
+      "lead": "Lisez les engagements liés à votre commande et à l’utilisation de notre service en ligne.",
+      "sections": [
+        [
+          "Commande",
+          "La commande est validée une fois le paiement confirmé et la disponibilité vérifiée."
+        ],
+        [
+          "Prix",
+          "Les prix affichés incluent tous les coûts indiqués et sont mis à jour régulièrement."
+        ],
+        [
+          "Service client",
+          "Notre équipe reste disponible pour toute question relative à votre achat."
+        ]
+      ]
+    },
+    "payments": {
+      "kicker": "Paiements",
+      "title": "Paiement sécurisé et options pratiques",
+      "lead": "Payez en toute confiance avec des méthodes adaptées à votre expérience d’achat.",
+      "sections": [
+        [
+          "Sécurité",
+          "Tous les paiements passent par des plateformes sécurisées pour protéger vos données."
+        ],
+        [
+          "Modes",
+          "Carte bancaire, mobile money ou autres moyens disponibles selon votre région."
+        ],
+        [
+          "Assistance",
+          "En cas de problème de paiement, notre service client vous aide rapidement."
+        ]
+      ]
+    }
+  },
+  "products": [
+    {
+      "id": "p-vivrier-01",
+      "reference": "AG-VIV-TOM-01",
+      "brand": "Coopérative Maraîchère de Foumbot",
+      "sellerId": "u-vendeur-foumbot",
+      "name": "Tomates fraîches de Foumbot (Cageot)",
+      "category": "Produits vivriers et agricoles",
+      "subcategory": "Légumes",
+      "unit": "cageot",
+      "saleMode": "les-deux",
+      "minOrder": 1,
+      "location": "Foumbot (Ouest)",
+      "price": 12000,
+      "oldPrice": 14500,
+      "stock": 35,
+      "rating": 4.9,
+      "reviews": 64,
+      "new": false,
+      "promo": true,
+      "featured": true,
+      "bestseller": true,
+      "image": "https://images.pexels.com/photos/1327838/pexels-photo-1327838.jpeg?auto=compress&w=900",
+      "images": [
+        "https://images.pexels.com/photos/1327838/pexels-photo-1327838.jpeg?auto=compress&w=900",
+        "https://images.pexels.com/photos/533280/pexels-photo-533280.jpeg?auto=compress&w=900"
+      ],
+      "shortDescription": "Cageot de tomates fermes de première qualité récoltées à Foumbot.",
+      "description": "Tomates fraîches cultivées selon les bonnes pratiques agricoles à Foumbot. Idéales pour les marchés de détail, les restaurants et la consommation familiale. Excellente fermeté et conservation.",
+      "benefits": [
+        "Récolte du jour",
+        "Chair ferme et juteuse",
+        "Idéal pour stockage et transport"
+      ],
+      "composition": "100% Tomates fraîches sélectionnées.",
+      "usage": "À conserver dans un endroit frais et aéré.",
+      "precautions": "Manipuler les cageots avec précaution lors du déchargement."
+    },
+    {
+      "id": "p-vivrier-02",
+      "reference": "AG-VIV-PLT-02",
+      "brand": "GIC Vivrier d’Obala",
+      "sellerId": "u-vendeur-obala",
+      "name": "Régime de plantain géant (Obala)",
+      "category": "Produits vivriers et agricoles",
+      "subcategory": "Fruits",
+      "unit": "regime",
+      "saleMode": "les-deux",
+      "minOrder": 2,
+      "location": "Obala (Centre)",
+      "price": 4500,
+      "oldPrice": 5000,
+      "stock": 40,
+      "rating": 4.8,
+      "reviews": 51,
+      "new": false,
+      "promo": false,
+      "featured": true,
+      "bestseller": true,
+      "image": "https://images.pexels.com/photos/2872755/pexels-photo-2872755.jpeg?auto=compress&w=900",
+      "images": [
+        "https://images.pexels.com/photos/2872755/pexels-photo-2872755.jpeg?auto=compress&w=900"
+      ],
+      "shortDescription": "Gros régime de plantain vert de la Lékié, doigts bien remplis.",
+      "description": "Plantain sélectionné auprès des producteurs membres du GIC d’Obala. Doigts volumineux, qualité supérieure pour friture (alloco), braisage ou pilé.",
+      "benefits": [
+        "Doigts lourds et charnus",
+        "Coupe fraîche",
+        "Direct producteur sans intermédiaire"
+      ],
+      "composition": "Plantain corne 100% naturel.",
+      "usage": "À consommer mûr ou vert selon la préparation souhaitée.",
+      "precautions": "Conserver à température ambiante pour maturation régulière."
+    },
+    {
+      "id": "p-vivrier-03",
+      "reference": "AG-VIV-MAIS-03",
+      "brand": "Céréales & Légumineuses du Nord",
+      "sellerId": "u-vendeur-nord",
+      "name": "Sac de maïs blanc sec (100 kg)",
+      "category": "Produits vivriers et agricoles",
+      "subcategory": "Céréales",
+      "unit": "sac_100kg",
+      "saleMode": "gros",
+      "minOrder": 1,
+      "location": "Garoua (Nord)",
+      "price": 24000,
+      "oldPrice": 27000,
+      "stock": 80,
+      "rating": 4.7,
+      "reviews": 38,
+      "new": false,
+      "promo": true,
+      "featured": true,
+      "bestseller": false,
+      "image": "https://images.pexels.com/photos/547263/pexels-photo-547263.jpeg?auto=compress&w=900",
+      "images": [
+        "https://images.pexels.com/photos/547263/pexels-photo-547263.jpeg?auto=compress&w=900"
+      ],
+      "shortDescription": "Sac de 100 kg de maïs blanc bien séché, trié et prêt au stockage.",
+      "description": "Maïs blanc de récolte récente issu de la région du Nord. Grains bien pleins, taux d humidité contrôlé (<13%). Idéal pour meunerie, provenderie ou consommation vivrière.",
+      "benefits": [
+        "Taux d humidité optimal",
+        "Grains propres sans débris",
+        "Sacs robustes en polypropylène"
+      ],
+      "composition": "Maïs blanc grain entier 100%.",
+      "usage": "Conserver sur palettes dans un magasin sec et ventilé.",
+      "precautions": "Éviter le contact direct avec le sol humide."
+    },
+    {
+      "id": "p-elevage-01",
+      "reference": "AG-ELV-VOL-01",
+      "brand": "Ferme Avicole des Hauts Plateaux",
+      "sellerId": "u-vendeur-bafoussam",
+      "name": "Poulet de chair prêt à cuire (2.2 kg)",
+      "category": "Élevage et produits animaux",
+      "subcategory": "Volailles",
+      "unit": "piece",
+      "saleMode": "les-deux",
+      "minOrder": 5,
+      "location": "Bafoussam (Ouest)",
+      "price": 3800,
+      "oldPrice": 4200,
+      "stock": 120,
+      "rating": 4.9,
+      "reviews": 92,
+      "new": false,
+      "promo": true,
+      "featured": true,
+      "bestseller": true,
+      "image": "https://images.pexels.com/photos/2255459/pexels-photo-2255459.jpeg?auto=compress&w=900",
+      "images": [
+        "https://images.pexels.com/photos/2255459/pexels-photo-2255459.jpeg?auto=compress&w=900"
+      ],
+      "shortDescription": "Poulet de chair bien nourri, poids moyen 2,2 kg à 2,5 kg.",
+      "description": "Poulets élevés au sol avec provende équilibrée et suivi vétérinaire strict. Disponibles vivants ou plumés et conditionnés selon votre commande.",
+      "benefits": [
+        "Suivi sanitaire rigoureux",
+        "Chair tendre et savoureuse",
+        "Poids garanti"
+      ],
+      "composition": "Volaille fermière saine.",
+      "usage": "Livraison en caisses aérées ou chaîne du froid si plumé.",
+      "precautions": "Respecter la chaîne de froid pour les poulets éviscérés."
+    },
+    {
+      "id": "p-elevage-02",
+      "reference": "AG-ELV-ALIM-02",
+      "brand": "Ferme Avicole des Hauts Plateaux",
+      "sellerId": "u-vendeur-bafoussam",
+      "name": "Provende Volaille Finition (Sac 50 kg)",
+      "category": "Élevage et produits animaux",
+      "subcategory": "Aliments et nutrition animale",
+      "unit": "sac_50kg",
+      "saleMode": "les-deux",
+      "minOrder": 1,
+      "location": "Bafoussam (Ouest)",
+      "price": 18500,
+      "oldPrice": 20000,
+      "stock": 55,
+      "rating": 4.8,
+      "reviews": 46,
+      "new": true,
+      "promo": false,
+      "featured": true,
+      "bestseller": false,
+      "image": "https://images.pexels.com/photos/247431/pexels-photo-247431.jpeg?auto=compress&w=900",
+      "images": [
+        "https://images.pexels.com/photos/247431/pexels-photo-247431.jpeg?auto=compress&w=900"
+      ],
+      "shortDescription": "Aliment complet équilibré pour engraissement optimal des poulets.",
+      "description": "Formule enrichie en protéines végétales, maïs sélectionné, tourteau de soja et oligoéléments. Assure un gain de poids quotidien rapide et homogène.",
+      "benefits": [
+        "Indice de consommation optimal",
+        "Renforce la musculature",
+        "Zéro hormone ajoutée"
+      ],
+      "composition": "Maïs, tourteau de soja, son de blé, concentré minéral et vitaminé.",
+      "usage": "Distribuer à volonté dès la 4ème semaine jusqu à la vente.",
+      "precautions": "Conserver dans un abri sec à l abri des rongeurs."
+    },
+    {
+      "id": "p-elevage-03",
+      "reference": "AG-ELV-OEUF-03",
+      "brand": "Ferme Avicole des Hauts Plateaux",
+      "sellerId": "u-vendeur-bafoussam",
+      "name": "Alvéole de 30 œufs frais calibre Gros",
+      "category": "Élevage et produits animaux",
+      "subcategory": "Produits de la ferme",
+      "unit": "alvéole",
+      "saleMode": "les-deux",
+      "minOrder": 3,
+      "location": "Bafoussam (Ouest)",
+      "price": 2200,
+      "oldPrice": 2500,
+      "stock": 200,
+      "rating": 4.9,
+      "reviews": 115,
+      "new": false,
+      "promo": true,
+      "featured": true,
+      "bestseller": true,
+      "image": "https://images.pexels.com/photos/162712/egg-white-food-protein-162712.jpeg?auto=compress&w=900",
+      "images": [
+        "https://images.pexels.com/photos/162712/egg-white-food-protein-162712.jpeg?auto=compress&w=900"
+      ],
+      "shortDescription": "Œufs de table frais pondus du jour, calibre gros et coquille propre.",
+      "description": "Œufs issus de poules pondeuses nourries sainement. Idéal pour pâtisseries, demi-gros et consommation des ménages.",
+      "benefits": [
+        "Ponte fraîche garantie",
+        "Jaune bien orangé",
+        "Calibre régulier"
+      ],
+      "composition": "Œufs frais de poule.",
+      "usage": "À conserver à température fraîche.",
+      "precautions": "Manipuler les alvéoles avec soin."
+    },
+    {
+      "id": "p-semence-01",
+      "reference": "AG-SEM-MAIS-01",
+      "brand": "AgriCam Intrants & Fertilisants",
+      "sellerId": "u-vendeur-agricam",
+      "name": "Semences de maïs hybride certifié (Sac 10 kg)",
+      "category": "Semences, plants et pépinières",
+      "subcategory": "Semences vivrières et maraîchères certifiées",
+      "unit": "sac_10kg",
+      "saleMode": "les-deux",
+      "minOrder": 1,
+      "location": "Douala (Littoral)",
+      "price": 28000,
+      "oldPrice": 32000,
+      "stock": 45,
+      "rating": 4.8,
+      "reviews": 29,
+      "new": true,
+      "promo": true,
+      "featured": true,
+      "bestseller": false,
+      "image": "https://images.pexels.com/photos/162809/pexels-photo-162809.jpeg?auto=compress&w=900",
+      "images": [
+        "https://images.pexels.com/photos/162809/pexels-photo-162809.jpeg?auto=compress&w=900"
+      ],
+      "shortDescription": "Variété hybride à fort potentiel de rendement (jusqu à 7 T/ha).",
+      "description": "Semences traitées et certifiées adaptées aux zones tropicales du Cameroun. Excellente tolérance à la sécheresse et résistance aux maladies foliaires.",
+      "benefits": [
+        "Taux de germination > 95%",
+        "Rendement élevé",
+        "Épis bien garnis"
+      ],
+      "composition": "Semences de maïs hybride certifié traitées au fongicide/insecticide.",
+      "usage": "Semer à raison de 20 à 25 kg par hectare.",
+      "precautions": "Graines traitées impropres à la consommation humaine et animale."
+    },
+    {
+      "id": "p-semence-02",
+      "reference": "AG-SEM-PLT-02",
+      "brand": "GIC Vivrier d’Obala",
+      "sellerId": "u-vendeur-obala",
+      "name": "Rejets de bananier plantain PIF (Lot de 50)",
+      "category": "Semences, plants et pépinières",
+      "subcategory": "Rejets de plantain et boutures sélectionnées",
+      "unit": "lot_50",
+      "saleMode": "les-deux",
+      "minOrder": 1,
+      "location": "Obala (Centre)",
+      "price": 17500,
+      "oldPrice": 20000,
+      "stock": 30,
+      "rating": 4.7,
+      "reviews": 24,
+      "new": true,
+      "promo": false,
+      "featured": false,
+      "bestseller": false,
+      "image": "https://images.pexels.com/photos/1054658/pexels-photo-1054658.jpeg?auto=compress&w=900",
+      "images": [
+        "https://images.pexels.com/photos/1054658/pexels-photo-1054658.jpeg?auto=compress&w=900"
+      ],
+      "shortDescription": "Plants issus de fragments de tiges (PIF) sevrés et acclimatés.",
+      "description": "Rejets vigoureux produits en pépinière contrôlée, exempts de nématodes et charançons. Prêts pour repiquage direct au champ.",
+      "benefits": [
+        "Croissance homogène",
+        "Matériel végétal sain",
+        "Entrée en production précoce"
+      ],
+      "composition": "50 plants de bananier plantain acclimatés.",
+      "usage": "Planter en début de saison des pluies dans un sol riche.",
+      "precautions": "Arroser immédiatement après la mise en terre."
+    },
+    {
+      "id": "p-intrant-01",
+      "reference": "AG-INT-NPK-01",
+      "brand": "AgriCam Intrants & Fertilisants",
+      "sellerId": "u-vendeur-agricam",
+      "name": "Engrais NPK 20-10-10 (Sac 50 kg)",
+      "category": "Intrants agricoles",
+      "subcategory": "Engrais minéraux (NPK, Urée)",
+      "unit": "sac_50kg",
+      "saleMode": "les-deux",
+      "minOrder": 1,
+      "location": "Douala (Littoral)",
+      "price": 26500,
+      "oldPrice": 29000,
+      "stock": 70,
+      "rating": 4.9,
+      "reviews": 85,
+      "new": false,
+      "promo": true,
+      "featured": true,
+      "bestseller": true,
+      "image": "https://images.pexels.com/photos/2132250/pexels-photo-2132250.jpeg?auto=compress&w=900",
+      "images": [
+        "https://images.pexels.com/photos/2132250/pexels-photo-2132250.jpeg?auto=compress&w=900"
+      ],
+      "shortDescription": "Formulation NPK idéale pour maraîchage, maïs et cultures vivrières.",
+      "description": "Engrais complet granulé assurant un développement vigoureux du feuillage et stimulant la formation des fruits et tubercules.",
+      "benefits": [
+        "Solubilité rapide",
+        "Assimilation foliaire et racinaire",
+        "Haut rendement"
+      ],
+      "composition": "Azote (20%), Phosphore (10%), Potassium (10%).",
+      "usage": "Appliquer en épandage ou enfouissement léger selon dosage recommandé.",
+      "precautions": "Stocker à l abri de la pluie et de l humidité."
+    },
+    {
+      "id": "p-intrant-02",
+      "reference": "AG-INT-BIO-02",
+      "brand": "Transformation Bio Cameroun",
+      "sellerId": "u-vendeur-terroirbio",
+      "name": "Compost organique enrichi (Sac 50 kg)",
+      "category": "Intrants agricoles",
+      "subcategory": "Fertilisants bio, compost et fientes",
+      "unit": "sac_50kg",
+      "saleMode": "les-deux",
+      "minOrder": 2,
+      "location": "Yaoundé (Centre)",
+      "price": 8500,
+      "oldPrice": 10000,
+      "stock": 50,
+      "rating": 4.8,
+      "reviews": 33,
+      "new": true,
+      "promo": false,
+      "featured": false,
+      "bestseller": false,
+      "image": "https://images.pexels.com/photos/1595104/pexels-photo-1595104.jpeg?auto=compress&w=900",
+      "images": [
+        "https://images.pexels.com/photos/1595104/pexels-photo-1595104.jpeg?auto=compress&w=900"
+      ],
+      "shortDescription": "Fertilisant 100% bio et naturel pour restaurer la fertilité des sols.",
+      "description": "Compost mûr à base de résidus végétaux et fientes compostées. Améliore la rétention d eau et la vie microbienne des parcelles.",
+      "benefits": [
+        "100% Organique",
+        "Restaure les sols épuisés",
+        "Sans odeur désagréable"
+      ],
+      "composition": "Matière organique 60%, azote organique, oligo-éléments.",
+      "usage": "Mélanger au sol lors du labour ou de la préparation des planches.",
+      "precautions": "Conserver au sec pour préserver la qualité des micro-organismes."
+    },
+    {
+      "id": "p-materiel-01",
+      "reference": "AG-MAT-PULV-01",
+      "brand": "AgriCam Intrants & Fertilisants",
+      "sellerId": "u-vendeur-agricam",
+      "name": "Pulvérisateur à dos professionnel 16 L",
+      "category": "Matériel et équipements",
+      "subcategory": "Outillage manuel et de récolte",
+      "unit": "piece",
+      "saleMode": "les-deux",
+      "minOrder": 1,
+      "location": "Douala (Littoral)",
+      "price": 16500,
+      "oldPrice": 19000,
+      "stock": 25,
+      "rating": 4.7,
+      "reviews": 41,
+      "new": false,
+      "promo": true,
+      "featured": true,
+      "bestseller": true,
+      "image": "https://images.pexels.com/photos/2252584/pexels-photo-2252584.jpeg?auto=compress&w=900",
+      "images": [
+        "https://images.pexels.com/photos/2252584/pexels-photo-2252584.jpeg?auto=compress&w=900"
+      ],
+      "shortDescription": "Pulvérisateur robuste à piston avec bretelles rembourrées et buses interchangeables.",
+      "description": "Appareil idéal pour les traitements foliaires maraîchers et arboricoles. Cuve renforcée résistante aux UV et aux chocs.",
+      "benefits": [
+        "Pression constante",
+        "Buses multiples incluses",
+        "Ergonomique et confortable"
+      ],
+      "composition": "Polyéthylène haute densité et lance en laiton.",
+      "usage": "Rincer à l eau claire après chaque utilisation de traitement.",
+      "precautions": "Porter un masque et des gants de protection lors de l application."
+    },
+    {
+      "id": "p-materiel-02",
+      "reference": "AG-MAT-POMP-02",
+      "brand": "AgriCam Intrants & Fertilisants",
+      "sellerId": "u-vendeur-agricam",
+      "name": "Motopompe d’irrigation essence 3 pouces",
+      "category": "Matériel et équipements",
+      "subcategory": "Systèmes d’irrigation, tuyaux et motopompes",
+      "unit": "piece",
+      "saleMode": "les-deux",
+      "minOrder": 1,
+      "location": "Douala (Littoral)",
+      "price": 145000,
+      "oldPrice": 165000,
+      "stock": 10,
+      "rating": 4.9,
+      "reviews": 19,
+      "new": true,
+      "promo": true,
+      "featured": true,
+      "bestseller": false,
+      "image": "https://images.pexels.com/photos/28100001/pexels-photo-28100001.jpeg?auto=compress&w=900",
+      "images": [
+        "https://images.pexels.com/photos/28100001/pexels-photo-28100001.jpeg?auto=compress&w=900"
+      ],
+      "shortDescription": "Motopompe haut débit 60 m3/h pour irrigation des champs et bassins.",
+      "description": "Moteur 4 temps puissant et économe en carburant. Conçu pour le puisage en rivière, forage ou retenue collinaire pour arroser jusqu à 3 hectares.",
+      "benefits": [
+        "Grand débit 60 m3/h",
+        "Châssis tubulaire acier",
+        "Démarrage facile"
+      ],
+      "composition": "Moteur essence 7.0 CV et pompe aluminium coulé.",
+      "usage": "Amorcer la pompe avant démarrage moteur.",
+      "precautions": "Vérifier le niveau d huile moteur avant chaque mise en service."
+    },
+    {
+      "id": "p-transf-01",
+      "reference": "AG-TRF-PALM-01",
+      "brand": "Transformation Bio Cameroun",
+      "sellerId": "u-vendeur-terroirbio",
+      "name": "Huile de palme rouge artisanale purifiée (Bidon 20 L)",
+      "category": "Produits transformés",
+      "subcategory": "Huiles végétales pures (palme raffinée, arachide)",
+      "unit": "bidon_20L",
+      "saleMode": "les-deux",
+      "minOrder": 1,
+      "location": "Yaoundé (Centre)",
+      "price": 22000,
+      "oldPrice": 25000,
+      "stock": 40,
+      "rating": 4.9,
+      "reviews": 76,
+      "new": false,
+      "promo": true,
+      "featured": true,
+      "bestseller": true,
+      "image": "https://images.pexels.com/photos/4158/field-sunset-harvest.jpg?auto=compress&w=900",
+      "images": [
+        "https://images.pexels.com/photos/4158/field-sunset-harvest.jpg?auto=compress&w=900"
+      ],
+      "shortDescription": "Huile de palme rouge naturelle première pression, filtrée sans colorant.",
+      "description": "Huile riche en bêta-carotène et vitamine E, produite dans le respect des traditions par extraction à chaud et double filtration.",
+      "benefits": [
+        "100% Naturelle sans additif",
+        "Couleur vive et arôme authentique",
+        "Bidon scellé"
+      ],
+      "composition": "100% Huile de palme rouge purifiée.",
+      "usage": "Indispensable pour la cuisine traditionnelle camerounaise.",
+      "precautions": "Conserver à l abri de la lumière directe."
+    },
+    {
+      "id": "p-transf-02",
+      "reference": "AG-TRF-FAR-02",
+      "brand": "Transformation Bio Cameroun",
+      "sellerId": "u-vendeur-terroirbio",
+      "name": "Farine de manioc panifiable (Sac 25 kg)",
+      "category": "Produits transformés",
+      "subcategory": "Farines locales (manioc, maïs, patate douce)",
+      "unit": "sac_25kg",
+      "saleMode": "les-deux",
+      "minOrder": 1,
+      "location": "Yaoundé (Centre)",
+      "price": 14000,
+      "oldPrice": 16000,
+      "stock": 35,
+      "rating": 4.8,
+      "reviews": 31,
+      "new": true,
+      "promo": false,
+      "featured": false,
+      "bestseller": false,
+      "image": "https://images.pexels.com/photos/6169653/pexels-photo-6169653.jpeg?auto=compress&w=900",
+      "images": [
+        "https://images.pexels.com/photos/6169653/pexels-photo-6169653.jpeg?auto=compress&w=900"
+      ],
+      "shortDescription": "Farine de manioc extra-fine sans gluten pour boulangerie et pâtisserie locale.",
+      "description": "Obtenue à partir de tubercules de manioc frais sélectionnés, lavés, râpés et séchés sous contrôle d hygiène rigoureux.",
+      "benefits": [
+        "Sans gluten naturel",
+        "Mouture fine et blanche",
+        "Idéal pour substitution partielle du blé"
+      ],
+      "composition": "100% Farine de manioc séché.",
+      "usage": "Pour pains composites, beignets, gâteaux et foufou.",
+      "precautions": "Garder dans un endroit sec pour éviter tout grumeau."
+    }
+  ],
+  "agriMarket": {
+    "name": "AgriMarket",
+    "shortName": "AM",
+    "region": "Cameroun",
+    "currency": "XAF",
+    "currencySymbol": "FCFA",
+    "slogan": "Le marché agricole digital du Cameroun",
+    "description": "Marketplace agropastorale dédiée à la commercialisation des récoltes, du bétail, des intrants, des semences et des équipements au Cameroun.",
+    "supportEmail": "contact@agrimarket.cm",
+    "supportPhone": "+237 6 00 00 00 00",
+    "businessTypes": [
+      "Producteurs vivriers",
+      "Éleveurs & aviculteurs",
+      "Pépiniéristes",
+      "Distributeurs d intrants",
+      "Transformateurs locaux",
+      "Coopératives & GICs"
+    ]
+  },
+  "agriCatalog": [
+    {
+      "id": "p-vivrier-01",
+      "reference": "AG-VIV-TOM-01",
+      "brand": "Coopérative Maraîchère de Foumbot",
+      "sellerId": "u-vendeur-foumbot",
+      "name": "Tomates fraîches de Foumbot (Cageot)",
+      "category": "Produits vivriers et agricoles",
+      "subcategory": "Légumes",
+      "unit": "cageot",
+      "saleMode": "les-deux",
+      "minOrder": 1,
+      "location": "Foumbot (Ouest)",
+      "price": 12000,
+      "oldPrice": 14500,
+      "stock": 35,
+      "rating": 4.9,
+      "reviews": 64,
+      "new": false,
+      "promo": true,
+      "featured": true,
+      "bestseller": true,
+      "image": "https://images.pexels.com/photos/1327838/pexels-photo-1327838.jpeg?auto=compress&w=900",
+      "images": [
+        "https://images.pexels.com/photos/1327838/pexels-photo-1327838.jpeg?auto=compress&w=900",
+        "https://images.pexels.com/photos/533280/pexels-photo-533280.jpeg?auto=compress&w=900"
+      ],
+      "shortDescription": "Cageot de tomates fermes de première qualité récoltées à Foumbot.",
+      "description": "Tomates fraîches cultivées selon les bonnes pratiques agricoles à Foumbot. Idéales pour les marchés de détail, les restaurants et la consommation familiale. Excellente fermeté et conservation.",
+      "benefits": [
+        "Récolte du jour",
+        "Chair ferme et juteuse",
+        "Idéal pour stockage et transport"
+      ],
+      "composition": "100% Tomates fraîches sélectionnées.",
+      "usage": "À conserver dans un endroit frais et aéré.",
+      "precautions": "Manipuler les cageots avec précaution lors du déchargement."
+    },
+    {
+      "id": "p-vivrier-02",
+      "reference": "AG-VIV-PLT-02",
+      "brand": "GIC Vivrier d’Obala",
+      "sellerId": "u-vendeur-obala",
+      "name": "Régime de plantain géant (Obala)",
+      "category": "Produits vivriers et agricoles",
+      "subcategory": "Fruits",
+      "unit": "regime",
+      "saleMode": "les-deux",
+      "minOrder": 2,
+      "location": "Obala (Centre)",
+      "price": 4500,
+      "oldPrice": 5000,
+      "stock": 40,
+      "rating": 4.8,
+      "reviews": 51,
+      "new": false,
+      "promo": false,
+      "featured": true,
+      "bestseller": true,
+      "image": "https://images.pexels.com/photos/2872755/pexels-photo-2872755.jpeg?auto=compress&w=900",
+      "images": [
+        "https://images.pexels.com/photos/2872755/pexels-photo-2872755.jpeg?auto=compress&w=900"
+      ],
+      "shortDescription": "Gros régime de plantain vert de la Lékié, doigts bien remplis.",
+      "description": "Plantain sélectionné auprès des producteurs membres du GIC d’Obala. Doigts volumineux, qualité supérieure pour friture (alloco), braisage ou pilé.",
+      "benefits": [
+        "Doigts lourds et charnus",
+        "Coupe fraîche",
+        "Direct producteur sans intermédiaire"
+      ],
+      "composition": "Plantain corne 100% naturel.",
+      "usage": "À consommer mûr ou vert selon la préparation souhaitée.",
+      "precautions": "Conserver à température ambiante pour maturation régulière."
+    },
+    {
+      "id": "p-vivrier-03",
+      "reference": "AG-VIV-MAIS-03",
+      "brand": "Céréales & Légumineuses du Nord",
+      "sellerId": "u-vendeur-nord",
+      "name": "Sac de maïs blanc sec (100 kg)",
+      "category": "Produits vivriers et agricoles",
+      "subcategory": "Céréales",
+      "unit": "sac_100kg",
+      "saleMode": "gros",
+      "minOrder": 1,
+      "location": "Garoua (Nord)",
+      "price": 24000,
+      "oldPrice": 27000,
+      "stock": 80,
+      "rating": 4.7,
+      "reviews": 38,
+      "new": false,
+      "promo": true,
+      "featured": true,
+      "bestseller": false,
+      "image": "https://images.pexels.com/photos/547263/pexels-photo-547263.jpeg?auto=compress&w=900",
+      "images": [
+        "https://images.pexels.com/photos/547263/pexels-photo-547263.jpeg?auto=compress&w=900"
+      ],
+      "shortDescription": "Sac de 100 kg de maïs blanc bien séché, trié et prêt au stockage.",
+      "description": "Maïs blanc de récolte récente issu de la région du Nord. Grains bien pleins, taux d humidité contrôlé (<13%). Idéal pour meunerie, provenderie ou consommation vivrière.",
+      "benefits": [
+        "Taux d humidité optimal",
+        "Grains propres sans débris",
+        "Sacs robustes en polypropylène"
+      ],
+      "composition": "Maïs blanc grain entier 100%.",
+      "usage": "Conserver sur palettes dans un magasin sec et ventilé.",
+      "precautions": "Éviter le contact direct avec le sol humide."
+    },
+    {
+      "id": "p-elevage-01",
+      "reference": "AG-ELV-VOL-01",
+      "brand": "Ferme Avicole des Hauts Plateaux",
+      "sellerId": "u-vendeur-bafoussam",
+      "name": "Poulet de chair prêt à cuire (2.2 kg)",
+      "category": "Élevage et produits animaux",
+      "subcategory": "Volailles",
+      "unit": "piece",
+      "saleMode": "les-deux",
+      "minOrder": 5,
+      "location": "Bafoussam (Ouest)",
+      "price": 3800,
+      "oldPrice": 4200,
+      "stock": 120,
+      "rating": 4.9,
+      "reviews": 92,
+      "new": false,
+      "promo": true,
+      "featured": true,
+      "bestseller": true,
+      "image": "https://images.pexels.com/photos/2255459/pexels-photo-2255459.jpeg?auto=compress&w=900",
+      "images": [
+        "https://images.pexels.com/photos/2255459/pexels-photo-2255459.jpeg?auto=compress&w=900"
+      ],
+      "shortDescription": "Poulet de chair bien nourri, poids moyen 2,2 kg à 2,5 kg.",
+      "description": "Poulets élevés au sol avec provende équilibrée et suivi vétérinaire strict. Disponibles vivants ou plumés et conditionnés selon votre commande.",
+      "benefits": [
+        "Suivi sanitaire rigoureux",
+        "Chair tendre et savoureuse",
+        "Poids garanti"
+      ],
+      "composition": "Volaille fermière saine.",
+      "usage": "Livraison en caisses aérées ou chaîne du froid si plumé.",
+      "precautions": "Respecter la chaîne de froid pour les poulets éviscérés."
+    },
+    {
+      "id": "p-elevage-02",
+      "reference": "AG-ELV-ALIM-02",
+      "brand": "Ferme Avicole des Hauts Plateaux",
+      "sellerId": "u-vendeur-bafoussam",
+      "name": "Provende Volaille Finition (Sac 50 kg)",
+      "category": "Élevage et produits animaux",
+      "subcategory": "Aliments et nutrition animale",
+      "unit": "sac_50kg",
+      "saleMode": "les-deux",
+      "minOrder": 1,
+      "location": "Bafoussam (Ouest)",
+      "price": 18500,
+      "oldPrice": 20000,
+      "stock": 55,
+      "rating": 4.8,
+      "reviews": 46,
+      "new": true,
+      "promo": false,
+      "featured": true,
+      "bestseller": false,
+      "image": "https://images.pexels.com/photos/247431/pexels-photo-247431.jpeg?auto=compress&w=900",
+      "images": [
+        "https://images.pexels.com/photos/247431/pexels-photo-247431.jpeg?auto=compress&w=900"
+      ],
+      "shortDescription": "Aliment complet équilibré pour engraissement optimal des poulets.",
+      "description": "Formule enrichie en protéines végétales, maïs sélectionné, tourteau de soja et oligoéléments. Assure un gain de poids quotidien rapide et homogène.",
+      "benefits": [
+        "Indice de consommation optimal",
+        "Renforce la musculature",
+        "Zéro hormone ajoutée"
+      ],
+      "composition": "Maïs, tourteau de soja, son de blé, concentré minéral et vitaminé.",
+      "usage": "Distribuer à volonté dès la 4ème semaine jusqu à la vente.",
+      "precautions": "Conserver dans un abri sec à l abri des rongeurs."
+    },
+    {
+      "id": "p-elevage-03",
+      "reference": "AG-ELV-OEUF-03",
+      "brand": "Ferme Avicole des Hauts Plateaux",
+      "sellerId": "u-vendeur-bafoussam",
+      "name": "Alvéole de 30 œufs frais calibre Gros",
+      "category": "Élevage et produits animaux",
+      "subcategory": "Produits de la ferme",
+      "unit": "alvéole",
+      "saleMode": "les-deux",
+      "minOrder": 3,
+      "location": "Bafoussam (Ouest)",
+      "price": 2200,
+      "oldPrice": 2500,
+      "stock": 200,
+      "rating": 4.9,
+      "reviews": 115,
+      "new": false,
+      "promo": true,
+      "featured": true,
+      "bestseller": true,
+      "image": "https://images.pexels.com/photos/162712/egg-white-food-protein-162712.jpeg?auto=compress&w=900",
+      "images": [
+        "https://images.pexels.com/photos/162712/egg-white-food-protein-162712.jpeg?auto=compress&w=900"
+      ],
+      "shortDescription": "Œufs de table frais pondus du jour, calibre gros et coquille propre.",
+      "description": "Œufs issus de poules pondeuses nourries sainement. Idéal pour pâtisseries, demi-gros et consommation des ménages.",
+      "benefits": [
+        "Ponte fraîche garantie",
+        "Jaune bien orangé",
+        "Calibre régulier"
+      ],
+      "composition": "Œufs frais de poule.",
+      "usage": "À conserver à température fraîche.",
+      "precautions": "Manipuler les alvéoles avec soin."
+    },
+    {
+      "id": "p-semence-01",
+      "reference": "AG-SEM-MAIS-01",
+      "brand": "AgriCam Intrants & Fertilisants",
+      "sellerId": "u-vendeur-agricam",
+      "name": "Semences de maïs hybride certifié (Sac 10 kg)",
+      "category": "Semences, plants et pépinières",
+      "subcategory": "Semences vivrières et maraîchères certifiées",
+      "unit": "sac_10kg",
+      "saleMode": "les-deux",
+      "minOrder": 1,
+      "location": "Douala (Littoral)",
+      "price": 28000,
+      "oldPrice": 32000,
+      "stock": 45,
+      "rating": 4.8,
+      "reviews": 29,
+      "new": true,
+      "promo": true,
+      "featured": true,
+      "bestseller": false,
+      "image": "https://images.pexels.com/photos/162809/pexels-photo-162809.jpeg?auto=compress&w=900",
+      "images": [
+        "https://images.pexels.com/photos/162809/pexels-photo-162809.jpeg?auto=compress&w=900"
+      ],
+      "shortDescription": "Variété hybride à fort potentiel de rendement (jusqu à 7 T/ha).",
+      "description": "Semences traitées et certifiées adaptées aux zones tropicales du Cameroun. Excellente tolérance à la sécheresse et résistance aux maladies foliaires.",
+      "benefits": [
+        "Taux de germination > 95%",
+        "Rendement élevé",
+        "Épis bien garnis"
+      ],
+      "composition": "Semences de maïs hybride certifié traitées au fongicide/insecticide.",
+      "usage": "Semer à raison de 20 à 25 kg par hectare.",
+      "precautions": "Graines traitées impropres à la consommation humaine et animale."
+    },
+    {
+      "id": "p-semence-02",
+      "reference": "AG-SEM-PLT-02",
+      "brand": "GIC Vivrier d’Obala",
+      "sellerId": "u-vendeur-obala",
+      "name": "Rejets de bananier plantain PIF (Lot de 50)",
+      "category": "Semences, plants et pépinières",
+      "subcategory": "Rejets de plantain et boutures sélectionnées",
+      "unit": "lot_50",
+      "saleMode": "les-deux",
+      "minOrder": 1,
+      "location": "Obala (Centre)",
+      "price": 17500,
+      "oldPrice": 20000,
+      "stock": 30,
+      "rating": 4.7,
+      "reviews": 24,
+      "new": true,
+      "promo": false,
+      "featured": false,
+      "bestseller": false,
+      "image": "https://images.pexels.com/photos/1054658/pexels-photo-1054658.jpeg?auto=compress&w=900",
+      "images": [
+        "https://images.pexels.com/photos/1054658/pexels-photo-1054658.jpeg?auto=compress&w=900"
+      ],
+      "shortDescription": "Plants issus de fragments de tiges (PIF) sevrés et acclimatés.",
+      "description": "Rejets vigoureux produits en pépinière contrôlée, exempts de nématodes et charançons. Prêts pour repiquage direct au champ.",
+      "benefits": [
+        "Croissance homogène",
+        "Matériel végétal sain",
+        "Entrée en production précoce"
+      ],
+      "composition": "50 plants de bananier plantain acclimatés.",
+      "usage": "Planter en début de saison des pluies dans un sol riche.",
+      "precautions": "Arroser immédiatement après la mise en terre."
+    },
+    {
+      "id": "p-intrant-01",
+      "reference": "AG-INT-NPK-01",
+      "brand": "AgriCam Intrants & Fertilisants",
+      "sellerId": "u-vendeur-agricam",
+      "name": "Engrais NPK 20-10-10 (Sac 50 kg)",
+      "category": "Intrants agricoles",
+      "subcategory": "Engrais minéraux (NPK, Urée)",
+      "unit": "sac_50kg",
+      "saleMode": "les-deux",
+      "minOrder": 1,
+      "location": "Douala (Littoral)",
+      "price": 26500,
+      "oldPrice": 29000,
+      "stock": 70,
+      "rating": 4.9,
+      "reviews": 85,
+      "new": false,
+      "promo": true,
+      "featured": true,
+      "bestseller": true,
+      "image": "https://images.pexels.com/photos/2132250/pexels-photo-2132250.jpeg?auto=compress&w=900",
+      "images": [
+        "https://images.pexels.com/photos/2132250/pexels-photo-2132250.jpeg?auto=compress&w=900"
+      ],
+      "shortDescription": "Formulation NPK idéale pour maraîchage, maïs et cultures vivrières.",
+      "description": "Engrais complet granulé assurant un développement vigoureux du feuillage et stimulant la formation des fruits et tubercules.",
+      "benefits": [
+        "Solubilité rapide",
+        "Assimilation foliaire et racinaire",
+        "Haut rendement"
+      ],
+      "composition": "Azote (20%), Phosphore (10%), Potassium (10%).",
+      "usage": "Appliquer en épandage ou enfouissement léger selon dosage recommandé.",
+      "precautions": "Stocker à l abri de la pluie et de l humidité."
+    },
+    {
+      "id": "p-intrant-02",
+      "reference": "AG-INT-BIO-02",
+      "brand": "Transformation Bio Cameroun",
+      "sellerId": "u-vendeur-terroirbio",
+      "name": "Compost organique enrichi (Sac 50 kg)",
+      "category": "Intrants agricoles",
+      "subcategory": "Fertilisants bio, compost et fientes",
+      "unit": "sac_50kg",
+      "saleMode": "les-deux",
+      "minOrder": 2,
+      "location": "Yaoundé (Centre)",
+      "price": 8500,
+      "oldPrice": 10000,
+      "stock": 50,
+      "rating": 4.8,
+      "reviews": 33,
+      "new": true,
+      "promo": false,
+      "featured": false,
+      "bestseller": false,
+      "image": "https://images.pexels.com/photos/1595104/pexels-photo-1595104.jpeg?auto=compress&w=900",
+      "images": [
+        "https://images.pexels.com/photos/1595104/pexels-photo-1595104.jpeg?auto=compress&w=900"
+      ],
+      "shortDescription": "Fertilisant 100% bio et naturel pour restaurer la fertilité des sols.",
+      "description": "Compost mûr à base de résidus végétaux et fientes compostées. Améliore la rétention d eau et la vie microbienne des parcelles.",
+      "benefits": [
+        "100% Organique",
+        "Restaure les sols épuisés",
+        "Sans odeur désagréable"
+      ],
+      "composition": "Matière organique 60%, azote organique, oligo-éléments.",
+      "usage": "Mélanger au sol lors du labour ou de la préparation des planches.",
+      "precautions": "Conserver au sec pour préserver la qualité des micro-organismes."
+    },
+    {
+      "id": "p-materiel-01",
+      "reference": "AG-MAT-PULV-01",
+      "brand": "AgriCam Intrants & Fertilisants",
+      "sellerId": "u-vendeur-agricam",
+      "name": "Pulvérisateur à dos professionnel 16 L",
+      "category": "Matériel et équipements",
+      "subcategory": "Outillage manuel et de récolte",
+      "unit": "piece",
+      "saleMode": "les-deux",
+      "minOrder": 1,
+      "location": "Douala (Littoral)",
+      "price": 16500,
+      "oldPrice": 19000,
+      "stock": 25,
+      "rating": 4.7,
+      "reviews": 41,
+      "new": false,
+      "promo": true,
+      "featured": true,
+      "bestseller": true,
+      "image": "https://images.pexels.com/photos/2252584/pexels-photo-2252584.jpeg?auto=compress&w=900",
+      "images": [
+        "https://images.pexels.com/photos/2252584/pexels-photo-2252584.jpeg?auto=compress&w=900"
+      ],
+      "shortDescription": "Pulvérisateur robuste à piston avec bretelles rembourrées et buses interchangeables.",
+      "description": "Appareil idéal pour les traitements foliaires maraîchers et arboricoles. Cuve renforcée résistante aux UV et aux chocs.",
+      "benefits": [
+        "Pression constante",
+        "Buses multiples incluses",
+        "Ergonomique et confortable"
+      ],
+      "composition": "Polyéthylène haute densité et lance en laiton.",
+      "usage": "Rincer à l eau claire après chaque utilisation de traitement.",
+      "precautions": "Porter un masque et des gants de protection lors de l application."
+    },
+    {
+      "id": "p-materiel-02",
+      "reference": "AG-MAT-POMP-02",
+      "brand": "AgriCam Intrants & Fertilisants",
+      "sellerId": "u-vendeur-agricam",
+      "name": "Motopompe d’irrigation essence 3 pouces",
+      "category": "Matériel et équipements",
+      "subcategory": "Systèmes d’irrigation, tuyaux et motopompes",
+      "unit": "piece",
+      "saleMode": "les-deux",
+      "minOrder": 1,
+      "location": "Douala (Littoral)",
+      "price": 145000,
+      "oldPrice": 165000,
+      "stock": 10,
+      "rating": 4.9,
+      "reviews": 19,
+      "new": true,
+      "promo": true,
+      "featured": true,
+      "bestseller": false,
+      "image": "https://images.pexels.com/photos/28100001/pexels-photo-28100001.jpeg?auto=compress&w=900",
+      "images": [
+        "https://images.pexels.com/photos/28100001/pexels-photo-28100001.jpeg?auto=compress&w=900"
+      ],
+      "shortDescription": "Motopompe haut débit 60 m3/h pour irrigation des champs et bassins.",
+      "description": "Moteur 4 temps puissant et économe en carburant. Conçu pour le puisage en rivière, forage ou retenue collinaire pour arroser jusqu à 3 hectares.",
+      "benefits": [
+        "Grand débit 60 m3/h",
+        "Châssis tubulaire acier",
+        "Démarrage facile"
+      ],
+      "composition": "Moteur essence 7.0 CV et pompe aluminium coulé.",
+      "usage": "Amorcer la pompe avant démarrage moteur.",
+      "precautions": "Vérifier le niveau d huile moteur avant chaque mise en service."
+    },
+    {
+      "id": "p-transf-01",
+      "reference": "AG-TRF-PALM-01",
+      "brand": "Transformation Bio Cameroun",
+      "sellerId": "u-vendeur-terroirbio",
+      "name": "Huile de palme rouge artisanale purifiée (Bidon 20 L)",
+      "category": "Produits transformés",
+      "subcategory": "Huiles végétales pures (palme raffinée, arachide)",
+      "unit": "bidon_20L",
+      "saleMode": "les-deux",
+      "minOrder": 1,
+      "location": "Yaoundé (Centre)",
+      "price": 22000,
+      "oldPrice": 25000,
+      "stock": 40,
+      "rating": 4.9,
+      "reviews": 76,
+      "new": false,
+      "promo": true,
+      "featured": true,
+      "bestseller": true,
+      "image": "https://images.pexels.com/photos/4158/field-sunset-harvest.jpg?auto=compress&w=900",
+      "images": [
+        "https://images.pexels.com/photos/4158/field-sunset-harvest.jpg?auto=compress&w=900"
+      ],
+      "shortDescription": "Huile de palme rouge naturelle première pression, filtrée sans colorant.",
+      "description": "Huile riche en bêta-carotène et vitamine E, produite dans le respect des traditions par extraction à chaud et double filtration.",
+      "benefits": [
+        "100% Naturelle sans additif",
+        "Couleur vive et arôme authentique",
+        "Bidon scellé"
+      ],
+      "composition": "100% Huile de palme rouge purifiée.",
+      "usage": "Indispensable pour la cuisine traditionnelle camerounaise.",
+      "precautions": "Conserver à l abri de la lumière directe."
+    },
+    {
+      "id": "p-transf-02",
+      "reference": "AG-TRF-FAR-02",
+      "brand": "Transformation Bio Cameroun",
+      "sellerId": "u-vendeur-terroirbio",
+      "name": "Farine de manioc panifiable (Sac 25 kg)",
+      "category": "Produits transformés",
+      "subcategory": "Farines locales (manioc, maïs, patate douce)",
+      "unit": "sac_25kg",
+      "saleMode": "les-deux",
+      "minOrder": 1,
+      "location": "Yaoundé (Centre)",
+      "price": 14000,
+      "oldPrice": 16000,
+      "stock": 35,
+      "rating": 4.8,
+      "reviews": 31,
+      "new": true,
+      "promo": false,
+      "featured": false,
+      "bestseller": false,
+      "image": "https://images.pexels.com/photos/6169653/pexels-photo-6169653.jpeg?auto=compress&w=900",
+      "images": [
+        "https://images.pexels.com/photos/6169653/pexels-photo-6169653.jpeg?auto=compress&w=900"
+      ],
+      "shortDescription": "Farine de manioc extra-fine sans gluten pour boulangerie et pâtisserie locale.",
+      "description": "Obtenue à partir de tubercules de manioc frais sélectionnés, lavés, râpés et séchés sous contrôle d hygiène rigoureux.",
+      "benefits": [
+        "Sans gluten naturel",
+        "Mouture fine et blanche",
+        "Idéal pour substitution partielle du blé"
+      ],
+      "composition": "100% Farine de manioc séché.",
+      "usage": "Pour pains composites, beignets, gâteaux et foufou.",
+      "precautions": "Garder dans un endroit sec pour éviter tout grumeau."
+    }
+  ]
+}
