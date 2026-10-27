@@ -1,283 +1,74 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
-import { Heart, ShoppingBag, Trash2, Share2, Sparkles, ArrowRight, Check, ShieldCheck, Star } from "lucide-react";
+import { ArrowRight, Check, Heart, Leaf, MapPin, PackageCheck, Share2, ShoppingBag, Sprout, Trash2 } from "lucide-react";
 import { useStore } from "@/lib/store";
 import { useRequireAuth } from "@/composants/RequireAuth";
 
-const SUGGESTIONS = [
-  {
-    id: "sug-1",
-    name: "Crème Jeunesse Régénérante - Guerlain",
-    brand: "GUERLAIN",
-    price: 42000,
-    category: "Soins Visage",
-    image: "https://images.unsplash.com/photo-1608248597461-897b693e5066?auto=format&fit=crop&w=800&q=80"
-  },
-  {
-    id: "sug-2",
-    name: "Eau de Parfum Rose Nobile - Acqua di Parma",
-    brand: "ACQUA DI PARMA",
-    price: 55000,
-    category: "Parfums",
-    image: "https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&w=800&q=80"
-  },
-  {
-    id: "sug-3",
-    name: "Poudre Compacte Fini Mat - Fenty Beauty",
-    brand: "FENTY BEAUTY",
-    price: 22000,
-    category: "Maquillage",
-    image: "https://images.unsplash.com/photo-1512496015851-a90fb38ba796?auto=format&fit=crop&w=800&q=80"
-  },
-  {
-    id: "sug-4",
-    name: "Sérum Capillaire Fortifiant - Olaplex N°7",
-    brand: "OLAPLEX",
-    price: 27500,
-    category: "Capillaire",
-    image: "https://images.unsplash.com/photo-1535585209827-a15fcdbc4c2d?auto=format&fit=crop&w=800&q=80"
-  }
-];
+const formatPrice = (price) => `${Number(price || 0).toLocaleString("fr-FR")} FCFA`;
 
 export default function FavorisPage() {
   const { user, hydrated } = useRequireAuth();
   const { products, wishlist, toggleWishlist, addToCart, notify } = useStore();
-  const [addedNotice, setAddedNotice] = useState(null);
+  const [notice, setNotice] = useState("");
+  const [confirmClear, setConfirmClear] = useState(false);
 
-  // Dynamic products from store wishlist array
-  const favoritedProducts = useMemo(() => {
-    if (!wishlist || !wishlist.length) return [];
-    return products.filter(p => wishlist.includes(p.id));
-  }, [products, wishlist]);
+  const favoriteProducts = useMemo(() => products.filter((product) => wishlist.includes(product.id)), [products, wishlist]);
+  const suggestions = useMemo(() => products.filter((product) => !wishlist.includes(product.id)).slice(0, 4), [products, wishlist]);
 
-  const triggerNotice = (msg) => {
-    if (notify) notify(msg);
-    setAddedNotice(msg);
-    setTimeout(() => setAddedNotice(null), 3500);
+  const announce = (message) => {
+    notify?.(message);
+    setNotice(message);
+    window.setTimeout(() => setNotice(""), 3200);
+  };
+  const addProduct = (product) => {
+    addToCart(product.id);
+    announce(`${product.name} ajouté au panier.`);
+  };
+  const shareList = async () => {
+    try {
+      if (navigator.share) await navigator.share({ title: "Ma sélection AgriMarket", text: "Les produits que j’ai repérés sur AgriMarket", url: window.location.href });
+      else { await navigator.clipboard.writeText(window.location.href); announce("Lien de votre sélection copié."); }
+    } catch { /* L’utilisateur peut annuler le partage. */ }
+  };
+  const clearFavorites = () => {
+    [...wishlist].forEach((id) => toggleWishlist(id));
+    setConfirmClear(false);
+    announce("Votre sélection a été vidée.");
   };
 
-  const handleRemove = (id, name) => {
-    toggleWishlist(id);
-    triggerNotice(`"${name}" a été retiré de vos favoris.`);
-  };
-
-  const handleClearAll = () => {
-    if (window.confirm("Voulez-vous vraiment vider votre liste de favoris ?")) {
-      wishlist.forEach(id => toggleWishlist(id));
-      triggerNotice("Votre liste de favoris a été entièrement vidée.");
-    }
-  };
-
-  const handleAddToCart = (product) => {
-    addToCart(product.id || product);
-    triggerNotice(`"${product.name}" a été ajouté à votre panier !`);
-  };
-
-  const handleAddAllToCart = () => {
-    favoritedProducts.forEach(product => addToCart(product.id));
-    triggerNotice(`Tous vos favoris ont été ajoutés à votre panier !`);
-  };
-
-  const handleAddSuggestion = (item) => {
-    toggleWishlist(item.id);
-    triggerNotice(`"${item.name}" a été ajouté à vos favoris !`);
-  };
-
-  const handleShare = () => {
-    if (navigator.share) {
-      navigator.share({
-        title: "Ma Wishlist ITEXAL Beauty",
-        text: "Découvrez ma sélection privée d'exception sur ITEXAL Beauty !",
-        url: window.location.href,
-      }).catch(() => {});
-    } else {
-      navigator.clipboard.writeText(window.location.href);
-      triggerNotice("Lien de votre wishlist copié dans le presse-papier !");
-    }
-  };
+  if (!hydrated || !user) return <main className="agri-favorites-loading"><span /><p>Chargement de votre sélection…</p></main>;
 
   return (
-    <main className="favorites-page">
-      {/* Toast Notification */}
-      {addedNotice && (
-        <div className="favorites-toast">
-          <Sparkles width={16} />
-          <span>{addedNotice}</span>
-        </div>
-      )}
+    <main className="agri-favorites-page">
+      {notice && <div className="agri-favorites-toast" role="status"><Check size={16} />{notice}</div>}
+      {confirmClear && <div className="agri-favorites-modal-backdrop" onClick={() => setConfirmClear(false)}><section className="agri-favorites-modal" role="dialog" aria-modal="true" aria-labelledby="clear-title" onClick={(event) => event.stopPropagation()}><span className="agri-favorites-modal-icon"><Trash2 /></span><h2 id="clear-title">Vider votre sélection ?</h2><p>Les produits enregistrés seront retirés de vos favoris.</p><div><button type="button" className="agri-favorites-danger" onClick={clearFavorites}>Vider les favoris</button><button type="button" className="agri-favorites-cancel" onClick={() => setConfirmClear(false)}>Garder ma sélection</button></div></section></div>}
 
-      {/* Luxury Breadcrumbs */}
-      <nav className="collection-breadcrumb container">
-        <Link href="/">Accueil</Link>
-        <span>/</span>
-        <strong>Ma Sélection Privée (Favoris)</strong>
-      </nav>
-
-      {/* Dior / Gucci Luxury Editorial Hero Header */}
-      <header className="favorites-hero container">
-        <div className="favorites-hero__inner">
-          <span className="eyebrow">HAUTE BEAUTÉ & SÉLECTION SUR-MESURE</span>
-          <h1>Mes Coups de Cœur & Favoris</h1>
-          <p>
-            Retrouvez ici vos rituels de soin précieux, parfums envoûtants et indispensables maquillage sauvegardés pour votre prochaine commande.
-          </p>
+      <header className="agri-favorites-hero">
+        <div className="agri-favorites-hero-inner">
+          <span className="agri-favorites-kicker"><Heart size={15} /> Votre carnet de produits</span>
+          <h1>Vos favoris,<br /><span>au rythme des saisons.</span></h1>
+          <p>Gardez à portée de main les récoltes, produits d’élevage et fournitures agricoles qui vous intéressent.</p>
+          <div className="agri-favorites-hero-count"><strong>{favoriteProducts.length}</strong><span>{favoriteProducts.length === 1 ? "produit sélectionné" : "produits sélectionnés"}</span></div>
         </div>
+        <div className="agri-favorites-hero-note"><Sprout size={22} /><span>Des produits locaux<br />pour vos projets agricoles</span></div>
       </header>
 
-      <div className="container">
-        {/* Action & Utility Ribbon */}
-        {favoritedProducts.length > 0 ? (
-          <div className="favorites-ribbon">
-            <div className="favorites-count-badge">
-              <strong>{favoritedProducts.length}</strong> {favoritedProducts.length === 1 ? "ARTICLE SAUVEGARDÉ" : "ARTICLES SAUVEGARDÉS"}
-            </div>
+      <section className="agri-favorites-main">
+        <div className="agri-favorites-breadcrumb"><Link href="/">Accueil</Link><span>/</span><strong>Mes favoris</strong></div>
+        {favoriteProducts.length > 0 ? <>
+          <div className="agri-favorites-toolbar"><div><span className="agri-favorites-section-kicker">VOTRE CARNET</span><h2>Produits enregistrés</h2></div><div className="agri-favorites-actions"><button type="button" className="agri-favorites-share" onClick={shareList}><Share2 size={16} />Partager</button><button type="button" className="agri-favorites-clear" onClick={() => setConfirmClear(true)}><Trash2 size={16} />Vider la liste</button></div></div>
+          <div className="agri-favorites-grid">{favoriteProducts.map((product) => <article className="agri-favorite-card" key={product.id}>
+            <div className="agri-favorite-image"><Link href={`/produit/${product.id}`}><img src={product.image || "/Images%20Agrimarket/images2/FOOD%20%E2%80%94%20BOBBI%20%20LIN.jpeg"} alt={product.name} /></Link><span className="agri-favorite-saved"><Heart size={13} fill="currentColor" /> Enregistré</span><button type="button" className="agri-favorite-remove" aria-label={`Retirer ${product.name} des favoris`} onClick={() => { toggleWishlist(product.id); announce(`${product.name} retiré des favoris.`); }}><Trash2 size={16} /></button></div>
+            <div className="agri-favorite-info"><span className="agri-favorite-origin"><MapPin size={13} />{product.location || product.city || "Cameroun"}</span><h3><Link href={`/produit/${product.id}`}>{product.name}</Link></h3><p>{product.brand || product.sellerName || product.category || "Produit agricole"}{product.unit ? ` · ${product.unit}` : ""}</p><div className="agri-favorite-card-bottom"><strong>{formatPrice(product.price)}</strong><button type="button" onClick={() => addProduct(product)}><ShoppingBag size={15} />Ajouter</button></div></div>
+          </article>)}</div>
+        </> : <div className="agri-favorites-empty"><span><Heart size={30} /></span><span className="agri-favorites-section-kicker">VOTRE CARNET EST ENCORE VIDE</span><h2>Commencez votre sélection</h2><p>Enregistrez les produits qui vous intéressent pour les retrouver facilement lors de votre prochaine visite.</p><Link href="/catalogue">Explorer le catalogue <ArrowRight size={16} /></Link></div>}
 
-            <div className="favorites-actions">
-              <button className="btn-pill-primary" onClick={handleAddAllToCart}>
-                <ShoppingBag width={15} /> Tout ajouter au panier
-              </button>
-              <button className="btn-pill-outline" onClick={handleShare}>
-                <Share2 width={15} /> Partager ma wishlist
-              </button>
-              <button className="favorites-clear-btn" onClick={handleClearAll}>
-                <Trash2 width={14} /> Vider la liste
-              </button>
-            </div>
-          </div>
-        ) : null}
-
-        {/* Favorites Products Grid */}
-        {favoritedProducts.length > 0 ? (
-          <div className="favorites-grid">
-            {favoritedProducts.map((product) => (
-              <article className="favorites-card" key={product.id}>
-                <div className="favorites-card__media">
-                  {product.bestseller && <span className="favorites-tag">Best-Seller</span>}
-                  <button 
-                    className="favorites-remove-btn" 
-                    onClick={() => handleRemove(product.id, product.name)}
-                    title="Retirer de mes favoris"
-                  >
-                    <Trash2 width={15} />
-                  </button>
-                  <Link href={`/produit/${product.id}`}>
-                    <img src={product.image} alt={product.name} />
-                  </Link>
-                </div>
-
-                <div className="favorites-card__info">
-                  <span className="brand-label">{product.brand || "ITEXAL BEAUTY"}</span>
-                  <h3>
-                    <Link href={`/produit/${product.id}`}>{product.name}</Link>
-                  </h3>
-
-                  <div className="favorites-card__meta">
-                    <span className="stock-badge"><Check width={12} /> En Stock (Livraison 24h)</span>
-                    <div className="stars-gold">{"★".repeat(product.rating || 5)}</div>
-                  </div>
-
-                  <div className="favorites-card__price-row">
-                    <div className="price-box">
-                      <strong className="current-price">{product.price?.toLocaleString("fr-FR")} FCFA</strong>
-                      {product.oldPrice && (
-                        <span className="old-price">{product.oldPrice?.toLocaleString("fr-FR")} FCFA</span>
-                      )}
-                    </div>
-
-                    <button 
-                      className="favorites-add-cart-btn" 
-                      onClick={() => handleAddToCart(product)}
-                    >
-                      <ShoppingBag width={15} /> Ajouter
-                    </button>
-                  </div>
-                </div>
-              </article>
-            ))}
-          </div>
-        ) : (
-          /* Empty Wishlist Dior Experience */
-          <div className="favorites-empty-card">
-            <div className="empty-icon-wrap">
-              <Heart width={42} height={42} />
-            </div>
-            <h2>Votre Sélection Privée est actuellement vide</h2>
-            <p>
-              Parcourez notre catalogue Haute Beauté et cliquez sur l'icône de cœur sur n'importe quel produit pour constituer votre sélection sur-mesure.
-            </p>
-            <Link href="/catalogue" className="btn-pill-primary">
-              Découvrir le Catalogue <ArrowRight width={16} />
-            </Link>
-          </div>
-        )}
-      </div>
-
-      {/* Chanel-Inspired "Complétez votre Rituel" Recommendation Rail */}
-      <section className="favorites-suggestions container">
-        <div className="favorites-section-head">
-          <div>
-            <span className="eyebrow">INSPIRATIONS & COMPLÉMENTS</span>
-            <h2>Complétez Votre Rituel Beauté</h2>
-          </div>
-          <Link href="/catalogue" className="editorial-link">
-            Voir toute la sélection <ArrowRight width={14} />
-          </Link>
-        </div>
-
-        <div className="suggestions-grid">
-          {SUGGESTIONS.map((item) => {
-            const isFav = wishlist.includes(item.id);
-            return (
-              <article className="suggestion-card" key={item.id}>
-                <div className="suggestion-media">
-                  <img src={item.image} alt={item.name} />
-                  <button 
-                    className={`suggestion-fav-btn ${isFav ? "is-active" : ""}`}
-                    onClick={() => handleAddSuggestion(item)}
-                    title="Ajouter aux favoris"
-                  >
-                    <Heart width={15} fill={isFav ? "#4a2e58" : "none"} color={isFav ? "#4a2e58" : "#1a1412"} />
-                  </button>
-                </div>
-                <div className="suggestion-info">
-                  <span className="brand-label">{item.brand}</span>
-                  <h3>{item.name}</h3>
-                  <strong className="price-tag">{item.price.toLocaleString("fr-FR")} FCFA</strong>
-                </div>
-              </article>
-            );
-          })}
-        </div>
+        {suggestions.length > 0 && <section className="agri-favorites-discover"><div className="agri-favorites-toolbar"><div><span className="agri-favorites-section-kicker">À DÉCOUVRIR SUR AGRIMARKET</span><h2>Peut-être pour votre prochaine récolte</h2></div><Link href="/catalogue">Tout le catalogue <ArrowRight size={15} /></Link></div><div className="agri-favorites-grid agri-favorites-suggestions">{suggestions.map((product) => <article className="agri-favorite-card" key={product.id}><div className="agri-favorite-image"><Link href={`/produit/${product.id}`}><img src={product.image || "/Images%20Agrimarket/images2/FOOD%20%E2%80%94%20BOBBI%20%20LIN.jpeg"} alt={product.name} /></Link><button type="button" className="agri-favorite-remove agri-favorite-add" aria-label={`Ajouter ${product.name} aux favoris`} onClick={() => { toggleWishlist(product.id); announce(`${product.name} ajouté aux favoris.`); }}><Heart size={17} /></button></div><div className="agri-favorite-info"><span className="agri-favorite-origin"><Leaf size={13} />{product.category || "Sélection locale"}</span><h3><Link href={`/produit/${product.id}`}>{product.name}</Link></h3><p>{product.brand || product.sellerName || "AgriMarket Cameroun"}</p><div className="agri-favorite-card-bottom"><strong>{formatPrice(product.price)}</strong><Link href={`/produit/${product.id}`} aria-label={`Voir ${product.name}`}><ArrowRight size={17} /></Link></div></div></article>)}</div></section>}
       </section>
 
-      {/* Reassurance Guarantee Bar */}
-      <section className="favorites-reassurance">
-        <div className="container reassurance-grid">
-          <div className="reassurance-item">
-            <ShieldCheck width={24} />
-            <div>
-              <strong>Produits 100% Certifiés</strong>
-              <p>Authenticité garantie auprès des grandes maisons.</p>
-            </div>
-          </div>
-          <div className="reassurance-item">
-            <Sparkles width={24} />
-            <div>
-              <strong>Conseil Beauté Personnalisé</strong>
-              <p>Nos experts beauté vous guident par WhatsApp 7j/7.</p>
-            </div>
-          </div>
-          <div className="reassurance-item">
-            <ShoppingBag width={24} />
-            <div>
-              <strong>Expédition Express 24h/48h</strong>
-              <p>Livraison sécurisée à Douala, Yaoundé et tout le Cameroun.</p>
-            </div>
-          </div>
-        </div>
-      </section>
+      <section className="agri-favorites-benefits"><div><span><PackageCheck size={22} /></span><p><strong>Une sélection à votre mesure</strong><small>Retrouvez facilement les produits repérés.</small></p></div><div><span><Sprout size={22} /></span><p><strong>Le meilleur des terroirs</strong><small>Découvrez les offres de producteurs locaux.</small></p></div><div><span><ShoppingBag size={22} /></span><p><strong>Prêts pour votre panier</strong><small>Ajoutez vos favoris quand vous le souhaitez.</small></p></div></section>
     </main>
   );
 }

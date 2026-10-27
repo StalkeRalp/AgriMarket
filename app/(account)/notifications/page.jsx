@@ -1,187 +1,178 @@
 "use client";
 
-import React, { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { Bell, Package, Sparkles, CheckCheck, ArrowRight, Tag, ShieldCheck, Clock, Trash2 } from "lucide-react";
+import {
+  ArrowRight,
+  Bell,
+  BellRing,
+  CheckCheck,
+  Clock3,
+  CreditCard,
+  PackageCheck,
+  Sprout,
+  Trash2,
+  X,
+} from "lucide-react";
 import { dateFr } from "@/lib/format";
-
-const INITIAL_NOTIFICATIONS = [
-  {
-    id: "notif-1",
-    type: "ORDER",
-    title: "Commande en cours d'expédition",
-    message: "Votre rituel beauté 'Sérum Hydratant Eclat Intense' de la commande #ITX-2026-8942 a été remis au transporteur à Douala.",
-    date: new Date().toISOString(),
-    read: false,
-    link: "/commandes",
-    linkText: "Suivre mon colis",
-    icon: Package
-  },
-  {
-    id: "notif-2",
-    type: "PROMO",
-    title: "Invitation Exclusive : Ventes Privées Dior",
-    message: "Bénéficiez de 20% de remise exceptionnelle sur l'ensemble de la gamme Dior Prestige avec le code privilège PRIVILEGE20.",
-    date: new Date(Date.now() - 3600000 * 24).toISOString(),
-    read: false,
-    link: "/catalogue?brand=DIOR",
-    linkText: "Découvrir la sélection",
-    icon: Sparkles
-  },
-  {
-    id: "notif-3",
-    type: "ORDER",
-    title: "Commande confirmée avec succès",
-    message: "Votre commande #ITX-2026-7815 d'un montant de 32 000 FCFA a bien été enregistrée et est en cours de préparation dans nos ateliers.",
-    date: new Date(Date.now() - 3600000 * 72).toISOString(),
-    read: true,
-    link: "/commandes",
-    linkText: "Voir la commande",
-    icon: ShieldCheck
-  }
-];
-
 import { useStore } from "@/lib/store";
 import { useRequireAuth } from "@/composants/RequireAuth";
 
+const filters = [
+  { id: "ALL", label: "Toutes" },
+  { id: "UNREAD", label: "Non lues" },
+  { id: "ORDER", label: "Commandes" },
+  { id: "PAYMENT", label: "Paiements" },
+  { id: "PROMO", label: "Offres" },
+];
+
+function iconForNotification(item) {
+  if (["Package", "PackageCheck"].includes(item.icon) || item.type === "ORDER") return PackageCheck;
+  if (["CreditCard"].includes(item.icon) || item.type === "PAYMENT") return CreditCard;
+  if (item.type === "PROMO") return Sprout;
+  return Bell;
+}
+
+function labelForNotification(type) {
+  if (type === "ORDER") return "Commande";
+  if (type === "PAYMENT") return "Paiement";
+  if (type === "STOCK") return "Stock";
+  if (type === "PROMO") return "Offre";
+  return "Information";
+}
+
 export default function NotificationsPage() {
   const { user, hydrated } = useRequireAuth();
-  const { 
-    notifications, 
-    unreadNotificationsCount, 
-    markAllNotificationsAsRead, 
-    toggleNotificationReadStatus, 
-    deleteNotification 
+  const {
+    notifications,
+    unreadNotificationsCount,
+    markAllNotificationsAsRead,
+    toggleNotificationReadStatus,
+    deleteNotification,
   } = useStore();
-  
   const [filter, setFilter] = useState("ALL");
+  const [selectedId, setSelectedId] = useState(null);
 
-  const filteredNotifs = notifications.filter(n => {
-    if (filter === "UNREAD") return !n.read;
-    if (filter === "ORDER") return n.type === "ORDER";
-    if (filter === "PROMO") return n.type === "PROMO";
+  const selectedNotification = notifications.find((item) => item.id === selectedId) || null;
+  const filteredNotifications = useMemo(() => notifications.filter((item) => {
+    if (filter === "UNREAD") return !item.read;
+    if (filter === "ORDER" || filter === "PAYMENT" || filter === "PROMO") return item.type === filter;
     return true;
-  });
+  }), [filter, notifications]);
+
+  useEffect(() => {
+    if (!selectedId) return undefined;
+    const closeOnEscape = (event) => {
+      if (event.key === "Escape") setSelectedId(null);
+    };
+    window.addEventListener("keydown", closeOnEscape);
+    return () => window.removeEventListener("keydown", closeOnEscape);
+  }, [selectedId]);
+
+  const openNotification = (item) => {
+    setSelectedId(item.id);
+    if (!item.read) toggleNotificationReadStatus(item.id);
+  };
+
+  if (!hydrated || !user) {
+    return <main className="agri-notifications-loading"><span /><p>Chargement de vos notifications…</p></main>;
+  }
 
   return (
-    <main className="notifications-page">
-      {/* Luxury Breadcrumb */}
-      <nav className="collection-breadcrumb container">
-        <Link href="/">Accueil</Link>
-        <span>/</span>
-        <strong>Espace Notifications</strong>
-      </nav>
-
-      {/* Hero Header */}
-      <header className="orders-hero container">
-        <div className="orders-hero__inner">
-          <span className="eyebrow">MAISON ITEXAL — MES ALERTES PRIVÉES</span>
-          <h1>Notifications & Privilèges</h1>
-          <p>
-            Suivez le statut de vos commandes en temps réel et ne manquez aucune invitation à nos ventes privées exclusives.
-          </p>
+    <main className="agri-notifications-page">
+      <header className="agri-notifications-hero">
+        <div className="agri-notifications-hero-inner">
+          <span className="agri-notifications-kicker"><BellRing size={15} /> Votre espace AgriMarket</span>
+          <h1>Vos notifications,<br /><span>au même endroit.</span></h1>
+          <p>Suivez les actualités de vos commandes, paiements et activités sur la marketplace.</p>
+          <div className="agri-notifications-summary">
+            <span className="agri-notifications-summary-icon"><Bell size={19} /></span>
+            <span><strong>{unreadNotificationsCount}</strong><small>{unreadNotificationsCount === 1 ? "notification non lue" : "notifications non lues"}</small></span>
+          </div>
         </div>
+        <div className="agri-notifications-hero-art" aria-hidden="true"><BellRing size={112} /><Sprout size={38} /></div>
       </header>
 
-      <div className="container" style={{ maxWidth: "920px" }}>
-        {/* Controls Bar */}
-        <div className="notif-controls-bar">
-          <div className="orders-filter-bar" style={{ marginBottom: 0, borderBottom: "none" }}>
-            <button 
-              className={`orders-tab ${filter === "ALL" ? "is-active" : ""}`}
-              onClick={() => setFilter("ALL")}
-            >
-              Toutes ({notifications.length})
-            </button>
-            <button 
-              className={`orders-tab ${filter === "UNREAD" ? "is-active" : ""}`}
-              onClick={() => setFilter("UNREAD")}
-            >
-              Non lues ({unreadNotificationsCount})
-            </button>
-            <button 
-              className={`orders-tab ${filter === "ORDER" ? "is-active" : ""}`}
-              onClick={() => setFilter("ORDER")}
-            >
-              Commandes
-            </button>
-            <button 
-              className={`orders-tab ${filter === "PROMO" ? "is-active" : ""}`}
-              onClick={() => setFilter("PROMO")}
-            >
-              Offres Privilèges
-            </button>
+      <section className="agri-notifications-content">
+        <div className="agri-notifications-toolbar">
+          <div className="agri-notifications-filters" aria-label="Filtrer les notifications">
+            {filters.map(({ id, label }) => {
+              const count = id === "ALL" ? notifications.length : id === "UNREAD" ? unreadNotificationsCount : notifications.filter((item) => item.type === id).length;
+              return (
+                <button key={id} type="button" className={filter === id ? "is-active" : ""} onClick={() => setFilter(id)} aria-pressed={filter === id}>
+                  {label}<span>{count}</span>
+                </button>
+              );
+            })}
           </div>
-
           {unreadNotificationsCount > 0 && (
-            <button className="btn-mark-all-read" onClick={markAllNotificationsAsRead}>
-              <CheckCheck width={15} /> Tout marquer comme lu
+            <button className="agri-notifications-mark-all" type="button" onClick={markAllNotificationsAsRead}>
+              <CheckCheck size={16} /> Tout marquer comme lu
             </button>
           )}
         </div>
 
-        {/* Notifications List */}
-        {filteredNotifs.length > 0 ? (
-          <div className="notifications-list">
-            {filteredNotifs.map((item) => {
-              const IconComp = item.icon === "Package" ? Package : item.icon === "Sparkles" ? Sparkles : item.icon === "ShieldCheck" ? ShieldCheck : Bell;
+        {filteredNotifications.length ? (
+          <div className="agri-notifications-list">
+            {filteredNotifications.map((item) => {
+              const Icon = iconForNotification(item);
               return (
-                <article className={`notif-card-luxury ${!item.read ? "is-unread" : ""}`} key={item.id}>
-                  <div className="notif-icon-badge">
-                    <IconComp width={20} />
-                  </div>
-
-                  <div className="notif-content-body">
-                    <div className="notif-header-row">
-                      <span className="notif-tag">
-                        {item.type === "ORDER" ? "LIVRAISON & COMMANDE" : "OFFRE PRIVILÈGE"}
-                      </span>
-                      <span className="notif-date">
-                        <Clock width={12} /> {dateFr(item.date)}
-                      </span>
-                    </div>
-
-                    <h3>{item.title}</h3>
-                    <p>{item.message}</p>
-
-                    <div className="notif-actions-row">
-                      {item.link && (
-                        <Link href={item.link} className="dior-btn-primary" style={{ padding: "10px 20px", fontSize: "11px" }}>
-                          {item.linkText} <ArrowRight width={14} />
-                        </Link>
-                      )}
-
-                      <button 
-                        className="notif-btn-secondary"
-                        onClick={() => toggleNotificationReadStatus(item.id)}
-                      >
-                        {item.read ? "Marquer comme non lu" : "Marquer comme lu"}
-                      </button>
-
-                      <button 
-                        className="notif-btn-delete"
-                        onClick={() => deleteNotification(item.id)}
-                        aria-label="Supprimer"
-                      >
-                        <Trash2 width={15} />
-                      </button>
-                    </div>
+                <article className={`agri-notification-card ${item.read ? "" : "is-unread"}`} key={item.id}>
+                  <button className="agri-notification-open" type="button" onClick={() => openNotification(item)}>
+                    <span className="agri-notification-icon"><Icon size={21} /></span>
+                    <span className="agri-notification-copy">
+                      <span className="agri-notification-meta"><span>{labelForNotification(item.type)}</span><time><Clock3 size={13} />{dateFr(item.date)}</time></span>
+                      <strong>{item.title}</strong>
+                      <span className="agri-notification-message">{item.message}</span>
+                      <span className="agri-notification-read-link">Lire le détail <ArrowRight size={15} /></span>
+                    </span>
+                    {!item.read && <span className="agri-notification-unread-dot" aria-label="Non lue" />}
+                  </button>
+                  <div className="agri-notification-controls">
+                    <button type="button" onClick={() => toggleNotificationReadStatus(item.id)} aria-label={item.read ? "Marquer comme non lue" : "Marquer comme lue"} title={item.read ? "Marquer comme non lue" : "Marquer comme lue"}>
+                      <CheckCheck size={16} />
+                    </button>
+                    <button type="button" onClick={() => deleteNotification(item.id)} aria-label="Supprimer la notification" title="Supprimer">
+                      <Trash2 size={16} />
+                    </button>
                   </div>
                 </article>
               );
             })}
           </div>
         ) : (
-          <div className="orders-empty-card">
-            <Bell width={48} height={48} />
-            <h2>Aucune notification</h2>
-            <p>Vous êtes à jour ! Vos alertes et offres exclusives s'afficheront ici dès qu'elles seront disponibles.</p>
-            <Link href="/catalogue" className="dior-btn-primary">
-              Explorer le Catalogue <ArrowRight width={16} />
-            </Link>
+          <div className="agri-notifications-empty">
+            <span><Bell size={28} /></span>
+            <h2>{filter === "UNREAD" ? "Tout est à jour" : "Aucune notification ici"}</h2>
+            <p>{filter === "UNREAD" ? "Vous avez consulté toutes vos notifications." : "Les nouvelles liées à votre activité apparaîtront dans cet espace."}</p>
+            <Link href="/catalogue">Explorer les offres <ArrowRight size={15} /></Link>
           </div>
         )}
-      </div>
+      </section>
+
+      {selectedNotification && (() => {
+        const Icon = iconForNotification(selectedNotification);
+        return (
+          <div className="agri-notification-modal" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setSelectedId(null); }}>
+            <section className="agri-notification-detail" role="dialog" aria-modal="true" aria-labelledby="notification-detail-title">
+              <header>
+                <span className="agri-notification-detail-icon"><Icon size={23} /></span>
+                <button type="button" onClick={() => setSelectedId(null)} aria-label="Fermer"><X size={20} /></button>
+              </header>
+              <span className="agri-notification-detail-type">{labelForNotification(selectedNotification.type)}</span>
+              <h2 id="notification-detail-title">{selectedNotification.title}</h2>
+              <div className="agri-notification-detail-date"><Clock3 size={14} />{dateFr(selectedNotification.date)}</div>
+              <p className="agri-notification-detail-message">{selectedNotification.details || selectedNotification.message}</p>
+              {selectedNotification.link && (
+                <Link href={selectedNotification.link} className="agri-notification-detail-action" onClick={() => setSelectedId(null)}>
+                  {selectedNotification.linkText || "Ouvrir"}<ArrowRight size={16} />
+                </Link>
+              )}
+              <button className="agri-notification-detail-close" type="button" onClick={() => setSelectedId(null)}>Fermer</button>
+            </section>
+          </div>
+        );
+      })()}
     </main>
   );
 }

@@ -132,12 +132,12 @@ export default function OtpVerificationPage() {
             <img src="/logo/AgriMarket_logo.png" alt="AgriMarket" className="auth-exact-logo-icon" />
             <div className="auth-exact-logo-text">
               <span className="auth-exact-brand">AgriMarket</span>
-              <small className="auth-exact-subbrand">Marketplace</small>
+              <small className="auth-exact-subbrand">Du champ à votre table</small>
             </div>
           </Link>
 
           {/* Title */}
-          <h1 className="auth-exact-heading">Verify Code</h1>
+          <h1 className="auth-exact-heading">Vérification de votre compte</h1>
 
           <p style={{ textAlign: "center", fontSize: "13px", color: "#8c7798", marginTop: "-18px", marginBottom: "20px", maxWidth: "380px" }}>
             Code de confirmation envoyé à <strong>{email || "votre adresse e-mail"}</strong>.
@@ -213,7 +213,7 @@ export default function OtpVerificationPage() {
 
         {/* Right Side Image */}
         <div className="auth-exact-image-side">
-          <img src="/Images/pexels-nguy-n-van-to-n-485495995-15916401.jpg" alt="AgriMarket marketplace agricole" className="auth-exact-img" />
+          <img src="/Images%20Agrimarket/pexels-the-northern-lense-2148554063-31120512.jpg" alt="Élevage local au Cameroun" className="auth-exact-img" />
         </div>
       </div>
     </main>

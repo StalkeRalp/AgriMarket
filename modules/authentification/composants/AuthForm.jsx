@@ -69,7 +69,7 @@ export function AuthForm({ mode = "login" }) {
 
         const result = login(validation.data.email, validation.data.password);
         if (!result) {
-          setGeneralError("Invalid credentials. Please check your email and password.");
+          setGeneralError("Identifiants incorrects. Vérifiez votre adresse e-mail et votre mot de passe.");
           setLoading(false);
           return;
         }
@@ -139,8 +139,8 @@ export function AuthForm({ mode = "login" }) {
 
   // Agricultural marketplace brand assets
   const bgPhoto = mode === "login"
-    ? "/Images/pexels-susan-flores-232226967-37796900.jpg"
-    : "/Images/pexels-dafne-aranda-241846587-37813463.jpg";
+    ? "/Images%20Agrimarket/pexels-jakubzerdzicki-28100001.jpg"
+    : "/Images%20Agrimarket/pexels-nasiru-othman-447186959-36757340.jpg";
 
   return (
     <main className="auth-exact-page">
@@ -157,13 +157,13 @@ export function AuthForm({ mode = "login" }) {
             <img src="/logo/AgriMarket_logo.png" alt="AgriMarket" className="auth-exact-logo-icon" />
             <div className="auth-exact-logo-text">
               <span className="auth-exact-brand">AgriMarket</span>
-              <small className="auth-exact-subbrand">Marketplace</small>
+              <small className="auth-exact-subbrand">Du champ à votre table</small>
             </div>
           </Link>
 
           {/* Centered Title */}
           <h1 className="auth-exact-heading">
-            {mode === "login" ? "Welcome back" : "Start your journey"}
+            {mode === "login" ? "Ravi de vous retrouver" : "Rejoignez AgriMarket"}
           </h1>
 
           {generalError && (
@@ -175,7 +175,7 @@ export function AuthForm({ mode = "login" }) {
           <form onSubmit={handleSubmit} className="auth-exact-form" noValidate>
             {mode === "register" && (
               <div className="auth-exact-field">
-                <label htmlFor="name-input">Name</label>
+                <label htmlFor="name-input">Nom complet</label>
                 <div className="auth-exact-input-box">
                   <UserIcon className="field-icon-svg" />
                   <input
@@ -184,7 +184,7 @@ export function AuthForm({ mode = "login" }) {
                     name="name"
                     value={form.name}
                     onChange={handleInputChange}
-                    placeholder="Enter your name"
+                    placeholder="Saisissez votre nom"
                     className={getFieldError(errors, "name") ? "input-error" : ""}
                     required
                   />
@@ -196,7 +196,7 @@ export function AuthForm({ mode = "login" }) {
             )}
 
             <div className="auth-exact-field">
-              <label htmlFor="email-input">Email</label>
+              <label htmlFor="email-input">Adresse e-mail</label>
               <div className="auth-exact-input-box">
                 <Mail className="field-icon-svg" />
                 <input
@@ -205,7 +205,7 @@ export function AuthForm({ mode = "login" }) {
                   name="email"
                   value={form.email}
                   onChange={handleInputChange}
-                  placeholder="Enter your email"
+                  placeholder="exemple@domaine.com"
                   className={getFieldError(errors, "email") ? "input-error" : ""}
                   required
                 />
@@ -217,10 +217,10 @@ export function AuthForm({ mode = "login" }) {
 
             <div className="auth-exact-field">
               <div className="label-flex-row">
-                <label htmlFor="password-input">Password</label>
+                <label htmlFor="password-input">Mot de passe</label>
                 {mode === "login" && (
                   <Link href="/mot-de-passe-oublie" className="forgot-pwd-link">
-                    Forgot password?
+                    Mot de passe oublié ?
                   </Link>
                 )}
               </div>
@@ -232,7 +232,7 @@ export function AuthForm({ mode = "login" }) {
                   name="password"
                   value={form.password}
                   onChange={handleInputChange}
-                  placeholder="Enter your password"
+                  placeholder="Saisissez votre mot de passe"
                   className={getFieldError(errors, "password") ? "input-error" : ""}
                   required
                 />
@@ -240,7 +240,7 @@ export function AuthForm({ mode = "login" }) {
                   type="button"
                   className="eye-toggle-btn"
                   onClick={() => setShowPassword(!showPassword)}
-                  aria-label="Toggle password visibility"
+                  aria-label="Afficher ou masquer le mot de passe"
                 >
                   {showPassword ? <EyeOff /> : <Eye />}
                 </button>
@@ -252,7 +252,7 @@ export function AuthForm({ mode = "login" }) {
 
             {mode === "register" && (
               <div className="auth-exact-field">
-                <label htmlFor="confirmPassword-input">Confirm password</label>
+                <label htmlFor="confirmPassword-input">Confirmer le mot de passe</label>
                 <div className="auth-exact-input-box">
                   <Lock className="field-icon-svg" />
                   <input
@@ -261,7 +261,7 @@ export function AuthForm({ mode = "login" }) {
                     name="confirmPassword"
                     value={form.confirmPassword}
                     onChange={handleInputChange}
-                    placeholder="Confirm your password"
+                    placeholder="Saisissez à nouveau votre mot de passe"
                     className={getFieldError(errors, "confirmPassword") ? "input-error" : ""}
                     required
                   />
@@ -269,7 +269,7 @@ export function AuthForm({ mode = "login" }) {
                     type="button"
                     className="eye-toggle-btn"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    aria-label="Toggle confirmation visibility"
+                    aria-label="Afficher ou masquer la confirmation"
                   >
                     {showConfirmPassword ? <EyeOff /> : <Eye />}
                   </button>
@@ -280,17 +280,16 @@ export function AuthForm({ mode = "login" }) {
               </div>
             )}
 
-            {/* Pink Pill Button matching Reference Image */}
             <button type="submit" className="auth-exact-pink-btn" disabled={loading}>
               {loading ? (
-                <span>Loading...</span>
+                <span>Veuillez patienter…</span>
               ) : mode === "login" ? (
                 <>
-                  <span>Login</span> <ArrowRight width={16} />
+                  <span>Se connecter</span> <ArrowRight width={16} />
                 </>
               ) : (
                 <>
-                  <span>Sign up</span> <ArrowRight width={16} />
+                  <span>Créer mon compte</span> <ArrowRight width={16} />
                 </>
               )}
             </button>
@@ -332,16 +331,16 @@ export function AuthForm({ mode = "login" }) {
           <div className="auth-exact-footer">
             {mode === "login" ? (
               <p>
-                Don't have an account?{" "}
+                Pas encore de compte ?{" "}
                 <Link href="/inscription" className="auth-exact-purple-link">
-                  Sign up <ArrowRight width={14} />
+                  S’inscrire <ArrowRight width={14} />
                 </Link>
               </p>
             ) : (
               <p>
-                Do have an account?{" "}
+                Vous avez déjà un compte ?{" "}
                 <Link href="/connexion" className="auth-exact-purple-link">
-                  Login <ArrowRight width={14} />
+                  Se connecter <ArrowRight width={14} />
                 </Link>
               </p>
             )}

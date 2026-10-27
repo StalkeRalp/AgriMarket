@@ -11,6 +11,34 @@ function read(key, fallback) {
   catch { return fallback; }
 }
 
+function refreshLegacyNotifications(storedNotifications) {
+  if (!Array.isArray(storedNotifications)) return db.notifications || [];
+  const seededNotifications = new Map((db.notifications || []).map(item => [item.id, item]));
+  return storedNotifications.map(item => {
+    const seeded = seededNotifications.get(item.id);
+    const containsLegacyBeautyContent = /beauty|dior|itx-2026|sérum|rituel beauté|prestige/i
+      .test(`${item.title || ""} ${item.message || ""}`);
+    return seeded && containsLegacyBeautyContent ? { ...seeded, read: Boolean(item.read) } : item;
+  });
+}
+
+function refreshLegacyReviews(storedReviews) {
+  if (!Array.isArray(storedReviews) || !storedReviews.length) return db.reviews || [];
+  const containsLegacyCosmetics = storedReviews.some(r =>
+    ["p1", "p2", "p9"].includes(r.productId) ||
+    /couleur|teinte|texture légère|routine/i.test(`${r.title || ""} ${r.comment || ""}`)
+  );
+  if (containsLegacyCosmetics) {
+    const custom = storedReviews.filter(r =>
+      !["rv-1", "rv-2", "rv-3"].includes(r.id) &&
+      !["p1", "p2", "p9"].includes(r.productId) &&
+      !/couleur|teinte|texture légère|routine/i.test(`${r.title || ""} ${r.comment || ""}`)
+    );
+    return [...custom, ...(db.reviews || [])];
+  }
+  return storedReviews;
+}
+
 export function StoreProvider({ children }) {
   const catalogSeed = Array.isArray(db.agriCatalog) && db.agriCatalog.length ? db.agriCatalog : (db.products || []);
   const [products, setProducts] = useState(catalogSeed);
@@ -46,13 +74,13 @@ export function StoreProvider({ children }) {
     setCart(read("agrimarket.cart", {}));
     setWishlist(read("agrimarket.wishlist", []));
     setOrders(read("agrimarket.orders", db.orders || []));
-    setNotifications(read("agrimarket.notifications", db.notifications || []));
+    setNotifications(refreshLegacyNotifications(read("agrimarket.notifications", db.notifications || [])));
     setUsers(read("agrimarket.users", db.users || []));
     setUser(read("agrimarket.user", null));
     setPendingVerification(read("agrimarket.pendingVerification", null));
     setResetTokens(read("agrimarket.resetTokens", {}));
     setAddresses(read("agrimarket.addresses", db.addresses || []));
-    setReviews(read("agrimarket.reviews", db.reviews || []));
+    setReviews(refreshLegacyReviews(read("agrimarket.reviews", db.reviews || [])));
     setProductRequests(read("agrimarket.productRequests", []));
     setRecentProducts(read("agrimarket.recentProducts", []));
     setHydrated(true);
@@ -265,41 +293,128 @@ export function StoreProvider({ children }) {
     notify("Déconnexion réussie.");
   }, [notify]);
 
-  const checkout = useCallback(customer => {
+  const checkout = useCallback((customer, customShipping = null, customPayment = {}) => {
     if (!lines.length) throw new Error("Le panier est vide.");
+
+    const finalShipping = customShipping !== null ? Number(customShipping) : (lines.length ? 1500 : 0);
+    const finalTotal = subtotal + finalShipping;
+    const randomSuffix = Math.floor(10000 + Math.random() * 90000);
+    const orderId = `AGRI-2026-${randomSuffix}`;
+
+    const initialStatus = customPayment.status || (customPayment.method === "BANK_TRANSFER" ? "En attente de paiement" : "Confirmée");
+    const paymentStatus = customPayment.paymentStatus || (
+      customPayment.method === "CASH_ON_DELIVERY" ? "Paiement à la réception (Cash)" :
+      customPayment.method === "BANK_TRANSFER" ? "En attente du virement" :
+      "Payé & Validé"
+    );
+
     const order = {
-      id: `CMD-${Date.now().toString().slice(-8)}`,
-      createdAt: new Date().toISOString(), status: "Nouvelle", customer,
-      items: lines.map(({ product, quantity }) => ({ productId: product.id, name: product.name, price: product.price, quantity, image: product.image })),
-      subtotal, shipping, total,
+      id: orderId,
+      createdAt: new Date().toISOString(),
+      status: initialStatus,
+      statusCode: initialStatus === "En attente de paiement" ? "pending_payment" : "confirmed",
+      currentStepIndex: initialStatus === "En attente de paiement" ? 1 : 2,
+      customer: {
+        name: customer.name || "Client AgriMarket",
+        phone: customer.phone || "",
+        whatsapp: customer.whatsapp || customer.phone || "",
+        email: customer.email || "",
+        region: customer.region || "Littoral",
+        city: customer.city || "Douala",
+        district: customer.district || "",
+        address: customer.address || "",
+        deliveryMode: customer.deliveryMode || "LIVRAISON_DOMICILE",
+        pickupPoint: customer.pickupPoint || null
+      },
+      // Flat properties for backward compatibility across various views
+      name: customer.name || "Client AgriMarket",
+      phone: customer.phone || "",
+      whatsapp: customer.whatsapp || customer.phone || "",
+      email: customer.email || "",
+      region: customer.region || "Littoral",
+      city: customer.city || "Douala",
+      district: customer.district || "",
+      address: customer.address || "",
+      deliveryMode: customer.deliveryMode || "LIVRAISON_DOMICILE",
+      pickupPoint: customer.pickupPoint || null,
+      paymentMethod: customPayment.methodLabel || customer.payment || "MTN Mobile Money",
+      paymentStatus: paymentStatus,
+      paymentDetails: customPayment,
+      items: lines.map(({ product, quantity }) => ({
+        id: product.id,
+        productId: product.id,
+        name: product.name,
+        price: product.price,
+        unit: product.unit || "kg",
+        origin: product.location || product.origin || "Cameroun",
+        brand: product.brand || "Producteur Local",
+        quantity,
+        image: product.image
+      })),
+      subtotal,
+      shipping: finalShipping,
+      total: finalTotal,
+      timeline: [
+        {
+          step: initialStatus,
+          date: new Date().toISOString(),
+          description: initialStatus === "En attente de paiement"
+            ? "Commande enregistrée. En attente de la réception du virement bancaire pour validation."
+            : "Commande validée et transmise aux producteurs et au service logistique AgriMarket."
+        }
+      ]
     };
+
     setOrders(current => [order, ...current]);
-    setProducts(current => current.map(product => cart[product.id] ? { ...product, stock: Math.max(0, product.stock - Number(cart[product.id])) } : product));
+    // Deduct stock safely
+    setProducts(current => current.map(product => {
+      const purchasedQty = Number(cart[product.id] || 0);
+      if (purchasedQty > 0) {
+        return { ...product, stock: Math.max(0, product.stock - purchasedQty) };
+      }
+      return product;
+    }));
     setCart({});
 
     // Automatically trigger a real-time order notification!
     addNotification({
       type: "ORDER",
-      title: "Nouvelle commande enregistrée !",
-      message: `Votre commande #${order.id} d'un montant de ${total} FCFA a été validée avec succès.`,
+      title: `Commande #${order.id} validée !`,
+      message: `Votre commande d'un montant de ${finalTotal.toLocaleString("fr-FR")} FCFA a été enregistrée avec succès.`,
       link: `/confirmation/${order.id}`,
-      linkText: "Voir la commande",
+      linkText: "Voir le reçu",
       icon: "Package"
     });
 
     return order;
-  }, [lines, subtotal, shipping, total, cart, addNotification]);
+  }, [lines, subtotal, cart, addNotification]);
 
   const updateUserProfile = useCallback((profileData) => {
     setUser(prev => {
-      if (!prev) return null;
-      const updated = { ...prev, ...profileData };
+      const base = prev || { id: `u-${Date.now()}`, role: "CLIENT", firstName: "Exploitant", lastName: "AgriMarket", email: "client@agrimarket.cm" };
+      const updated = { ...base, ...profileData };
       setUsers(currentUsers =>
-        currentUsers.map(u => (u.id === prev.id || u.email === prev.email ? { ...u, ...profileData } : u))
+        currentUsers.map(u => (u.id === base.id || u.email === base.email ? { ...u, ...profileData } : u))
       );
+      try {
+        localStorage.setItem("agrimarket.user", JSON.stringify(updated));
+      } catch {}
       return updated;
     });
     notify("Profil et paramètres mis à jour avec succès !");
+  }, [notify]);
+
+  const addReview = useCallback((reviewData) => {
+    const newReview = {
+      id: `rev-${Date.now()}`,
+      createdAt: new Date().toISOString(),
+      date: new Intl.DateTimeFormat("fr-FR", { month: "long", year: "numeric" }).format(new Date()),
+      approved: true,
+      ...reviewData
+    };
+    setReviews(prev => [newReview, ...(prev || [])]);
+    notify("Votre avis d'exploitant / acheteur a été publié avec succès !");
+    return newReview;
   }, [notify]);
 
   const value = useMemo(() => ({
@@ -307,11 +422,11 @@ export function StoreProvider({ children }) {
     addToCart, setQuantity, removeFromCart, wishlist, toggleWishlist,
     orders, setOrders, checkout, users, setUsers, user, setUser, updateUserProfile, login, register, logout,
     pendingVerification, setPendingVerification, sendOtp, verifyOtp, requestPasswordReset, resetPassword,
-    addresses, setAddresses, reviews, setReviews, productRequests, setProductRequests,
+    addresses, setAddresses, reviews, setReviews, addReview, productRequests, setProductRequests,
     recentProducts, rememberProduct, cartOpen, setCartOpen, hydrated, notify,
     notifications, setNotifications, unreadNotificationsCount,
     markAllNotificationsAsRead, toggleNotificationReadStatus, deleteNotification, addNotification
-  }), [products, cart, lines, itemCount, subtotal, shipping, total, addToCart, setQuantity, removeFromCart, wishlist, toggleWishlist, orders, checkout, users, user, updateUserProfile, login, register, logout, pendingVerification, sendOtp, verifyOtp, requestPasswordReset, resetPassword, addresses, reviews, productRequests, recentProducts, rememberProduct, cartOpen, hydrated, notify, notifications, unreadNotificationsCount, markAllNotificationsAsRead, toggleNotificationReadStatus, deleteNotification, addNotification]);
+  }), [products, cart, lines, itemCount, subtotal, shipping, total, addToCart, setQuantity, removeFromCart, wishlist, toggleWishlist, orders, checkout, users, user, updateUserProfile, login, register, logout, pendingVerification, sendOtp, verifyOtp, requestPasswordReset, resetPassword, addresses, reviews, setReviews, addReview, productRequests, recentProducts, rememberProduct, cartOpen, hydrated, notify, notifications, unreadNotificationsCount, markAllNotificationsAsRead, toggleNotificationReadStatus, deleteNotification, addNotification]);
 
   return <StoreContext.Provider value={value}>{children}<div className={`toast ${toastMessage ? "show" : ""}`} role="status">{toastMessage}</div></StoreContext.Provider>;
 }

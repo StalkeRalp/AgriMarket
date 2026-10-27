@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Heart, ShoppingBag } from "lucide-react";
+import { Heart, MapPin, ShoppingBag, Star } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useStore } from "@/lib/store";
 import { money } from "@/lib/format";
@@ -76,8 +76,9 @@ export function ProductCard({ product }) {
         <div className="product-meta-row" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px" }}>
           <span className="product-brand-tag">{product.brand || "AgriMarket"}</span>
           {product.location && (
-            <span style={{ fontSize: "11px", color: "#6a7b63", display: "inline-flex", alignItems: "center", gap: "2px" }}>
-              📍 {product.location}
+            <span style={{ fontSize: "11px", color: "#6a7b63", display: "inline-flex", alignItems: "center", gap: "3px" }}>
+              <MapPin width={11} height={11} style={{ color: "var(--agri-green)" }} />
+              {product.location}
             </span>
           )}
         </div>
@@ -87,7 +88,11 @@ export function ProductCard({ product }) {
         </h3>
 
         <div className="studio-rating-row">
-          <div className="studio-stars">★★★★★</div>
+          <div className="studio-stars" style={{ display: "inline-flex", alignItems: "center", gap: "2px" }}>
+            {[...Array(5)].map((_, i) => (
+              <Star key={i} width={11} height={11} fill="#f59e0b" color="#f59e0b" />
+            ))}
+          </div>
           <span className="reviews-count">({product.reviews || 42})</span>
         </div>
 

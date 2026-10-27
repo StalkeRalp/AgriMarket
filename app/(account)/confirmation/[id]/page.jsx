@@ -1,8 +1,22 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import Link from "next/link";
-import { Check, PackageCheck, Truck, Download, ShoppingBag, ArrowRight, ShieldCheck, MapPin, Phone, CreditCard, Sparkles } from "lucide-react";
+import { 
+  Check, 
+  PackageCheck, 
+  Truck, 
+  Download, 
+  ArrowRight, 
+  ShieldCheck, 
+  MapPin, 
+  Phone, 
+  CreditCard, 
+  Store, 
+  MessageSquare, 
+  Calendar, 
+  AlertTriangle 
+} from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { useStore } from "@/lib/store";
 import { money, dateFr } from "@/lib/format";
@@ -15,39 +29,60 @@ export default function ConfirmationPage() {
   const [downloading, setDownloading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
-  const order = orders.find(item => item.id === id) || {
-    id: id || "ITX-2026-8942",
-    createdAt: new Date().toISOString(),
-    status: "CONFIRMÉE & EN PRÉPARATION",
-    total: 68500,
-    shipping: 2000,
-    name: "Client ITEXAL",
-    phone: "+237 699 000 000",
-    email: "client@demo.cm",
-    city: "Douala",
-    district: "Bonamoussadi",
-    address: "Repère Carrefour Market",
-    paymentMethod: "MTN Mobile Money",
-    items: [
-      {
-        id: "p1",
-        name: "Sérum Hydratant Eclat Intense",
-        brand: "LANEIGE",
-        price: 24500,
-        quantity: 1,
-        image: "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=800&q=80"
-      },
-      {
-        id: "p2",
-        name: "Huile de Parfum Élixir Botanique",
-        brand: "DIOR BEAUTY",
-        price: 44000,
-        quantity: 1,
-        image: "https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=800&q=80"
-      }
-    ]
-  };
+  // Search order in StoreContext or fallback to a realistic Cameroonian agropastoral order
+  const order = useMemo(() => {
+    const found = orders?.find(item => item.id === id);
+    if (found) return found;
 
+    return {
+      id: id || "AGRI-2026-8942",
+      createdAt: new Date().toISOString(),
+      status: "Confirmée",
+      statusCode: "confirmed",
+      total: 26000,
+      subtotal: 24500,
+      shipping: 1500,
+      name: "Client AgriMarket",
+      phone: "+237 677 88 99 00",
+      whatsapp: "+237 677 88 99 00",
+      email: "client@agrimarket.cm",
+      region: "Littoral",
+      city: "Douala",
+      district: "Bonapriso",
+      address: "Avenue De Gaulle, Immeuble Horizon Vert",
+      deliveryMode: "LIVRAISON_DOMICILE",
+      paymentMethod: "MTN Mobile Money",
+      paymentStatus: "Payé via MTN Mobile Money",
+      items: [
+        {
+          id: "p-vivrier-01",
+          name: "Régime de plantain corne fort de première récolte",
+          brand: "GIC Vivrier d’Obala",
+          price: 4500,
+          quantity: 3,
+          unit: "régime",
+          origin: "Obala (Centre)",
+          image: "https://images.pexels.com/photos/2872755/pexels-photo-2872755.jpeg?auto=compress&w=900"
+        },
+        {
+          id: "p-elevage-01",
+          name: "Alvéole de 30 œufs frais calibre Gros",
+          brand: "Ferme Avicole des Hauts Plateaux",
+          price: 2200,
+          quantity: 5,
+          unit: "alvéole",
+          origin: "Bafoussam (Ouest)",
+          image: "https://images.pexels.com/photos/162712/egg-white-food-protein-162712.jpeg?auto=compress&w=900"
+        }
+      ]
+    };
+  }, [orders, id]);
+
+  const items = order.items || order.lines || [];
+  const customerWhatsapp = order.whatsapp || order.customer?.whatsapp || order.phone || order.customer?.phone || "+237 699 000 000";
+  const customerPhone = order.phone || order.customer?.phone || "+237 699 000 000";
+
+  // PDF Generation with in-app error handling (no native alerts)
   const handleDownloadPDF = () => {
     try {
       setDownloading(true);
@@ -57,149 +92,193 @@ export default function ConfirmationPage() {
       console.error(err);
       setErrorMessage("Échec de la génération du reçu : " + (err.message || "Une erreur est survenue."));
     } finally {
-      setTimeout(() => setDownloading(false), 1200);
+      setTimeout(() => setDownloading(false), 800);
     }
   };
 
-  const handleNavigateOrders = (e) => {
-    e.preventDefault();
-    router.push("/commandes");
-  };
+  // WhatsApp share link generator
+  const whatsappShareUrl = useMemo(() => {
+    const originUrl = typeof window !== "undefined" ? window.location.origin : "https://agrimarket.cm";
+    const trackingLink = `${originUrl}/suivi-commande?code=${encodeURIComponent(order.id)}`;
+
+    const text = [
+      `*AGRIMARKET CAMEROUN — REÇU DE COMMANDE*`,
+      `🌿 *Réf :* ${order.id}`,
+      `📅 *Date :* ${new Date(order.createdAt || Date.now()).toLocaleDateString("fr-FR")}`,
+      `👤 *Destinataire :* ${order.name || order.customer?.name || "Client"}`,
+      `📦 *Articles :*`,
+      ...items.map(i => `  • ${i.quantity || 1}x ${i.name || "Article"} (${((i.price || 0) * (i.quantity || 1)).toLocaleString("fr-FR")} FCFA)`),
+      `🚚 *Frais d'acheminement :* ${order.shipping === 0 ? "Gratuit (0 FCFA)" : money(order.shipping || 0)}`,
+      `💰 *Total Net :* ${money(order.total || 0)}`,
+      `💳 *Paiement :* ${order.paymentMethod || order.payment || "Mobile Money"} (${order.paymentStatus || order.status || "Validé"})`,
+      `📍 *Destination :* ${order.deliveryMode === "RETRAIT_RELAIS" ? "Retrait en point relais" : (order.city || "Cameroun")}`,
+      `🔎 *Suivi en direct :* ${trackingLink}`,
+      ``,
+      `_Merci de faire confiance à la production agropastorale locale du Cameroun !_`
+    ].join("\n");
+
+    return `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+  }, [order, items]);
 
   return (
-    <main className="confirmation-page">
-      {/* Luxury Breadcrumb */}
-      <nav className="collection-breadcrumb container">
+    <main className="agri-conf-page">
+      {/* Breadcrumb */}
+      <nav className="agri-checkout-breadcrumb">
         <Link href="/">Accueil</Link>
-        <span>/</span>
+        <span className="sep">/</span>
+        <Link href="/commandes">Mes Commandes</Link>
+        <span className="sep">/</span>
         <strong>Confirmation de Commande</strong>
       </nav>
 
-      <div className="container">
-        <section className="confirmation-card-luxury">
-          {/* Top Check Emblem */}
-          <div className="confirmation-emblem">
-            <div className="check-ring">
-              <Check width={32} height={32} />
+      <section className="agri-conf-card">
+        {/* Top Header Banner */}
+        <div className="agri-conf-banner">
+          <div className="agri-conf-check-icon">
+            <Check width={36} height={36} />
+          </div>
+          <h1>Votre commande est confirmée !</h1>
+          <p>
+            Merci pour votre achat. Retrouvez ci-dessous le récapitulatif de votre commande et les informations utiles pour son suivi.
+          </p>
+          <div className="agri-conf-ref-pill">
+            RÉFÉRENCE OFFICIELLE : {order.id}
+          </div>
+        </div>
+
+        {/* Key Info 3-Box Grid */}
+        <div className="agri-conf-details-grid">
+          <div className="agri-conf-detail-box">
+            <div className="title">
+              <Calendar width={16} /> Date & Référence
             </div>
-            <span className="eyebrow">MAISON ITEXAL BEAUTY</span>
-            <h1>Votre commande est confirmée !</h1>
-            <p className="subtitle">
-              Merci pour votre achat d'exception. Notre atelier prépare soigneusement votre colis pour une expédition rapide.
+            <strong>{order.id}</strong>
+            <p>Enregistrée le {order.createdAt ? dateFr(order.createdAt) : "Aujourd'hui"}</p>
+            <p style={{ marginTop: 4, color: "#0b5d33", fontWeight: 700 }}>
+              Statut : {order.status || "Confirmée"}
             </p>
           </div>
 
-          {/* Status Timeline */}
-          <div className="confirmation-timeline">
-            <div className="timeline-step is-active">
-              <div className="step-icon"><Check width={16} /></div>
-              <span>Commande Reçue</span>
+          <div className="agri-conf-detail-box">
+            <div className="title">
+              {order.deliveryMode === "RETRAIT_RELAIS" ? <Store width={16} /> : <MapPin width={16} />}
+              {order.deliveryMode === "RETRAIT_RELAIS" ? "Point de Retrait" : "Adresse de Livraison"}
             </div>
-            <div className="timeline-step is-active">
-              <div className="step-icon"><PackageCheck width={16} /></div>
-              <span>Préparation en cours</span>
-            </div>
-            <div className="timeline-step">
-              <div className="step-icon"><Truck width={16} /></div>
-              <span>Expédition Express</span>
-            </div>
+            <strong>{order.deliveryMode === "RETRAIT_RELAIS" ? "Retrait en point relais" : (order.city || "Douala / Yaoundé")}</strong>
+            <p>{order.pickupPoint || `${order.district ? order.district + " - " : ""}${order.address || ""}`}</p>
+            <p style={{ marginTop: 4, color: "#475569" }}>
+              WhatsApp : <strong>{customerWhatsapp}</strong>
+            </p>
           </div>
 
-          {/* Order Details Grid */}
-          <div className="confirmation-details-grid">
-            <div className="details-box">
-              <div className="box-title">
-                <ShieldCheck width={16} /> <span>Référence Commande</span>
-              </div>
-              <strong className="detail-value highlight">{order.id}</strong>
-              <small>Passée le {order.createdAt ? dateFr(order.createdAt) : "Aujourd'hui"}</small>
+          <div className="agri-conf-detail-box">
+            <div className="title">
+              <CreditCard width={16} /> Règlement & Paiement
             </div>
-
-            <div className="details-box">
-              <div className="box-title">
-                <MapPin width={16} /> <span>Adresse de Livraison</span>
-              </div>
-              <strong className="detail-value">{order.city || "Douala / Yaoundé"}</strong>
-              <small>{order.district ? `${order.district} - ` : ""}{order.address}</small>
-            </div>
-
-            <div className="details-box">
-              <div className="box-title">
-                <CreditCard width={16} /> <span>Mode de Règlement</span>
-              </div>
-              <strong className="detail-value">{order.paymentMethod || order.payment || "Paiement Mobile"}</strong>
-              <small>Statut : Confirmé & Validé</small>
-            </div>
+            <strong>{order.paymentMethod || order.payment || "Mobile Money"}</strong>
+            <p>Statut réel : <span style={{ color: order.status === "En attente de paiement" ? "#f37021" : "#0b5d33", fontWeight: 700 }}>{order.paymentStatus || "Confirmé & Validé"}</span></p>
+            <p style={{ marginTop: 4, color: "#64748b" }}>
+              Total : <strong>{money(order.total)}</strong>
+            </p>
           </div>
+        </div>
 
-          {/* Items Summary Table */}
-          <div className="confirmation-items-summary">
-            <h3>Récapitulatif des Articles</h3>
-            <div className="summary-list">
-              {(order.items || order.lines || []).map((item, idx) => (
-                <div className="summary-item-row" key={item.id || idx}>
-                  <div className="item-thumb">
-                    <img src={item.image || (item.product && item.product.image) || "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=300&q=80"} alt={item.name} />
+        {/* Detailed Items List */}
+        <div className="agri-conf-items-wrap">
+          <h3>Détail des Articles Commandés ({items.length})</h3>
+
+          <div className="agri-conf-items-list">
+            {items.map((item, idx) => {
+              const name = item.name || (item.product && item.product.name) || "Produit agricole";
+              const qty = item.quantity || 1;
+              const unitPrice = item.price || (item.product && item.product.price) || 0;
+              const unit = item.unit || "unité";
+              const origin = item.origin || item.location || "Cameroun";
+              const img = item.image || (item.product && item.product.image) || "https://images.pexels.com/photos/2872755/pexels-photo-2872755.jpeg?auto=compress&w=900";
+
+              return (
+                <div className="agri-conf-item-row" key={item.id || idx}>
+                  <img src={img} alt={name} className="agri-conf-item-thumb" />
+                  <div className="agri-conf-item-info">
+                    <h4>{name}</h4>
+                    <span>
+                      Quantité : <strong>{qty} {unit}</strong> × {money(unitPrice)}
+                    </span>
+                    <span style={{ display: "block", color: "#0b5d33", marginTop: 2 }}>
+                      📍 Terroir : {origin}
+                    </span>
                   </div>
-                  <div className="item-details">
-                    <span className="item-brand">{item.brand || "ITEXAL BEAUTY"}</span>
-                    <h4>{item.name || (item.product && item.product.name)}</h4>
-                    <span className="item-meta">Qté : {item.quantity || 1} × {(item.price || (item.product && item.product.price))?.toLocaleString("fr-FR")} FCFA</span>
-                  </div>
-                  <div className="item-subtotal">
-                    <strong>{((item.quantity || 1) * (item.price || (item.product && item.product.price) || 0)).toLocaleString("fr-FR")} FCFA</strong>
+                  <div className="agri-conf-item-total">
+                    {money(qty * unitPrice)}
                   </div>
                 </div>
-              ))}
-            </div>
-
-            <div className="confirmation-totals-box">
-              <div className="total-row">
-                <span>Sous-total articles :</span>
-                <strong>{money(order.total ? order.total - (order.shipping || 2000) : 66500)}</strong>
-              </div>
-              <div className="total-row">
-                <span>Frais de livraison :</span>
-                <strong>{money(order.shipping || 2000)}</strong>
-              </div>
-              <div className="total-row grand-total">
-                <span>Total Général :</span>
-                <strong>{money(order.total || 68500)}</strong>
-              </div>
-            </div>
+              );
+            })}
           </div>
 
-          {/* Error notice if PDF generation fails */}
-          {errorMessage && (
-            <div className="pdf-error-toast">
-              <span>{errorMessage}</span>
+          {/* Totals Breakdown */}
+          <div className="agri-conf-totals-card">
+            <div className="agri-conf-total-line">
+              <span>Sous-total articles :</span>
+              <strong>{money(order.subtotal || (order.total - (order.shipping || 0)))}</strong>
             </div>
-          )}
-
-          {/* Action Ribbon: PDF Download + View Orders + Continue Shopping */}
-          <div className="confirmation-actions-ribbon">
-            <button 
-              className="dior-btn-primary"
-              onClick={handleDownloadPDF}
-              disabled={downloading}
-            >
-              <Download width={16} />
-              {downloading ? "Génération du reçu..." : "Télécharger le reçu (PDF)"}
-            </button>
-
-            <button 
-              className="dior-btn-outline"
-              onClick={handleNavigateOrders}
-            >
-              Voir mes commandes <ArrowRight width={15} />
-            </button>
-
-            <Link href="/catalogue" className="dior-btn-outline secondary">
-              Continuer mes achats
-            </Link>
+            <div className="agri-conf-total-line">
+              <span>Frais d'acheminement / livraison :</span>
+              <strong>{order.shipping === 0 ? "Gratuit (0 FCFA)" : money(order.shipping || 0)}</strong>
+            </div>
+            <div className="agri-conf-total-line grand">
+              <span>Montant Net Réglé :</span>
+              <strong>{money(order.total)}</strong>
+            </div>
           </div>
-        </section>
-      </div>
+        </div>
+
+        {/* Error notification banner if PDF fails */}
+        {errorMessage && (
+          <div style={{ margin: "0 30px 20px", padding: "12px 18px", background: "#fef2f2", border: "1px solid #fecaca", color: "#991b1b", fontSize: "13px", display: "flex", alignItems: "center", gap: "8px" }}>
+            <AlertTriangle width={16} />
+            <span>{errorMessage}</span>
+          </div>
+        )}
+
+        {/* Actions Ribbon */}
+        <div className="agri-conf-actions">
+          <a 
+            href={whatsappShareUrl} 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            className="agri-btn-whatsapp-share"
+          >
+            <MessageSquare width={16} />
+            Partager le reçu sur WhatsApp
+          </a>
+
+          <button 
+            type="button" 
+            className="agri-btn-pdf-download" 
+            onClick={handleDownloadPDF} 
+            disabled={downloading}
+          >
+            <Download width={16} />
+            {downloading ? "Génération du PDF..." : "Télécharger le reçu (PDF)"}
+          </button>
+
+          <Link 
+            href={`/suivi-commande?code=${encodeURIComponent(order.id)}`} 
+            className="agri-btn-track-order"
+          >
+            <Truck width={16} />
+            Suivre l'acheminement en direct
+          </Link>
+
+          <Link 
+            href="/catalogue" 
+            style={{ marginLeft: "auto", color: "#0b5d33", fontSize: "13px", fontWeight: 700, textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 6 }}
+          >
+            Continuer mes achats <ArrowRight width={14} />
+          </Link>
+        </div>
+      </section>
     </main>
   );
 }

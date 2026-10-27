@@ -556,6 +556,225 @@ button:focus-visible,.btn:focus-visible,a:focus-visible,input:focus-visible,sele
    MODERN E-COMMERCE LUXURY DESIGN SYSTEM (ITEXAL BEAUTY)
    ========================================================================== */
 
+/* ==========================================================================
+   AGRIMARKET MODERN FOOTER (PREMIUM DARK THEME)
+   ========================================================================== */
+.agri-footer-modern {
+  background: #1f2320;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  color: #edf4ee;
+}
+
+.agri-footer-shell {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 28px 20px 20px;
+}
+
+.agri-footer-social-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  margin: 0 auto 52px;
+  padding: 0;
+  width: fit-content;
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.agri-footer-social-label {
+  color: #edf4ee;
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 0.01em;
+}
+
+.agri-footer-social-icons {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.social-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.social-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.18);
+}
+
+.social-fb { background: #1877f2; }
+.social-x { background: #111827; }
+.social-ig { background: linear-gradient(135deg, #f58529, #dd2a7b, #8134af, #515bd4); }
+.social-yt { background: #ff0000; }
+.social-tk { background: #000000; }
+
+.agri-footer-grid {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr 1fr;
+  gap: 48px;
+  align-items: start;
+}
+
+.agri-footer-brand-block {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.agri-footer-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.agri-footer-logo img {
+  width: 72px;
+  height: 72px;
+  object-fit: contain;
+  border-radius: 18px;
+  background: rgba(255,255,255,0.04);
+  padding: 8px;
+}
+
+.agri-footer-brand-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.agri-footer-brand-text strong {
+  font-size: 2rem;
+  color: #f9f1dc;
+  font-family: var(--font-display), Georgia, serif;
+  line-height: 1;
+}
+
+.agri-footer-brand-text span {
+  color: #d2e1d6;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.agri-footer-contact {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.agri-footer-contact a {
+  color: #dfeee2;
+  text-decoration: none;
+  font-size: 15px;
+}
+
+.agri-footer-column h4 {
+  margin: 0 0 16px;
+  color: #f6f8f2;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.agri-footer-column ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.agri-footer-column a {
+  color: #dfeee2;
+  text-decoration: none;
+  font-size: 14px;
+  opacity: 0.9;
+  transition: opacity 0.2s ease, color 0.2s ease;
+}
+
+.agri-footer-column a:hover {
+  color: #a7ff9a;
+  opacity: 1;
+}
+
+.agri-footer-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent);
+  margin: 36px 0 20px;
+}
+
+.agri-footer-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  color: #c9d9cd;
+  font-size: 12px;
+}
+
+.agri-footer-bottom p {
+  margin: 0;
+}
+
+.agri-footer-legal {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #dfeee2;
+}
+
+.agri-footer-legal a {
+  color: #dfeee2;
+  text-decoration: none;
+}
+
+.agri-footer-legal a:hover {
+  color: #a7ff9a;
+}
+
+@media (max-width: 900px) {
+  .agri-footer-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 610px) {
+  .agri-footer-social-bar {
+    flex-direction: column;
+    border-radius: 24px;
+    padding: 16px 18px;
+    width: 100%;
+    max-width: 430px;
+  }
+
+  .agri-footer-grid {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+
+  .agri-footer-bottom {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .agri-footer-legal {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}
+
 /* Sleek Subnav Ribbon Bar (Matching Reference Image) */
 .subnav-ribbon-bar{background:rgba(255,255,255,.94);border-bottom:1px solid rgba(19,61,42,.12);padding:11px 0;width:100%;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
 .subnav-ribbon-container{display:flex;justify-content:flex-end;align-items:center;gap:clamp(16px,2.5vw,32px)}

@@ -87,12 +87,12 @@ export default function ResetPasswordPage() {
             <img src="/logo/AgriMarket_logo.png" alt="AgriMarket" className="auth-exact-logo-icon" />
             <div className="auth-exact-logo-text">
               <span className="auth-exact-brand">AgriMarket</span>
-              <small className="auth-exact-subbrand">Marketplace</small>
+              <small className="auth-exact-subbrand">Du champ à votre table</small>
             </div>
           </Link>
 
           {/* Title */}
-          <h1 className="auth-exact-heading">Reset password</h1>
+          <h1 className="auth-exact-heading">Nouveau mot de passe</h1>
 
           <p style={{ textAlign: "center", fontSize: "13px", color: "#8c7798", marginTop: "-18px", marginBottom: "20px", maxWidth: "380px" }}>
             Définissez votre nouveau mot de passe sécurisé.
@@ -120,7 +120,7 @@ export default function ResetPasswordPage() {
           ) : (
             <form onSubmit={handleSubmit} className="auth-exact-form" noValidate>
               <div className="auth-exact-field">
-                <label htmlFor="token-input">Reset code</label>
+                <label htmlFor="token-input">Code de réinitialisation</label>
                 <div className="auth-exact-input-box">
                   <KeyRound className="field-icon-svg" />
                   <input
@@ -140,7 +140,7 @@ export default function ResetPasswordPage() {
               </div>
 
               <div className="auth-exact-field">
-                <label htmlFor="password-input">New password</label>
+                <label htmlFor="password-input">Nouveau mot de passe</label>
                 <div className="auth-exact-input-box">
                   <Lock className="field-icon-svg" />
                   <input
@@ -149,7 +149,7 @@ export default function ResetPasswordPage() {
                     name="password"
                     value={form.password}
                     onChange={handleInputChange}
-                    placeholder="Enter new password"
+                    placeholder="Saisissez votre nouveau mot de passe"
                     className={getFieldError(errors, "password") ? "input-error" : ""}
                     required
                   />
@@ -157,7 +157,7 @@ export default function ResetPasswordPage() {
                     type="button"
                     className="eye-toggle-btn"
                     onClick={() => setShowPassword(!showPassword)}
-                    aria-label="Toggle password visibility"
+                    aria-label="Afficher ou masquer le mot de passe"
                   >
                     {showPassword ? <EyeOff /> : <Eye />}
                   </button>
@@ -168,7 +168,7 @@ export default function ResetPasswordPage() {
               </div>
 
               <div className="auth-exact-field">
-                <label htmlFor="confirmPassword-input">Confirm new password</label>
+                <label htmlFor="confirmPassword-input">Confirmer le nouveau mot de passe</label>
                 <div className="auth-exact-input-box">
                   <Lock className="field-icon-svg" />
                   <input
@@ -177,7 +177,7 @@ export default function ResetPasswordPage() {
                     name="confirmPassword"
                     value={form.confirmPassword}
                     onChange={handleInputChange}
-                    placeholder="Confirm new password"
+                    placeholder="Saisissez à nouveau le mot de passe"
                     className={getFieldError(errors, "confirmPassword") ? "input-error" : ""}
                     required
                   />
@@ -185,7 +185,7 @@ export default function ResetPasswordPage() {
                     type="button"
                     className="eye-toggle-btn"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    aria-label="Toggle confirmation visibility"
+                    aria-label="Afficher ou masquer la confirmation"
                   >
                     {showConfirmPassword ? <EyeOff /> : <Eye />}
                   </button>
@@ -210,14 +210,14 @@ export default function ResetPasswordPage() {
           {/* Footer Link */}
           <div className="auth-exact-footer" style={{ marginTop: "20px" }}>
             <Link href="/connexion" className="auth-exact-purple-link">
-              <ArrowLeft width={14} /> Back to login
+              <ArrowLeft width={14} /> Retour à la connexion
             </Link>
           </div>
         </div>
 
         {/* Right Side Image */}
         <div className="auth-exact-image-side">
-          <img src="/Images/pexels-vitalyagorbachev-26927323.jpg" alt="AgriMarket marketplace agricole" className="auth-exact-img" />
+          <img src="/Images%20Agrimarket/pexels-arnaud-vigne-36746332-7164535.jpg" alt="Production agricole locale" className="auth-exact-img" />
         </div>
       </div>
     </main>

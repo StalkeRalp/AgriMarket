@@ -1,43 +1,82 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
-import { Search, CheckCircle2, Truck, Package, Clock, ShieldCheck, Download, ArrowRight, MapPin, Sparkles } from "lucide-react";
+import { 
+  Search, 
+  CheckCircle2, 
+  Truck, 
+  Package, 
+  Clock, 
+  ShieldCheck, 
+  Download, 
+  ArrowRight, 
+  MapPin, 
+  Sparkles, 
+  Store, 
+  MessageSquare, 
+  AlertCircle,
+  XCircle,
+  HelpCircle
+} from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useStore } from "@/lib/store";
 import { dateFr, money } from "@/lib/format";
 import { generateReceiptPDF } from "@/lib/pdfReceipt";
 
-const DEFAULT_DEMO_ORDER = {
-  id: "CMD-81725363",
-  createdAt: "2026-08-13T01:30:00.000Z",
-  status: "Nouvelle",
-  currentStepIndex: 1, // 1: Nouvelle, 2: Confirmée, 3: Préparation, 4: Expédiée, 5: Livrée
-  total: 68500,
-  shipping: 2000,
+const DEFAULT_AGRI_ORDER = {
+  id: "AGRI-2026-8942",
+  createdAt: "2026-08-12T14:20:00.000Z",
+  status: "En cours de livraison",
+  statusCode: "in_transit",
+  currentStepIndex: 5,
+  total: 26000,
+  subtotal: 24500,
+  shipping: 1500,
+  deliveryMode: "LIVRAISON_DOMICILE",
+  name: "Lelica Ange",
+  phone: "+237 677 88 99 00",
+  whatsapp: "+237 677 88 99 00",
+  email: "lelicaange@gmail.com",
+  region: "Littoral",
   city: "Douala",
   district: "Bonapriso",
-  address: "Face Boulangerie Z, portail vert",
+  address: "Avenue De Gaulle, Immeuble Horizon Vert",
   paymentMethod: "MTN Mobile Money",
+  paymentStatus: "Payé via MTN Mobile Money",
   items: [
     {
-      id: "p1",
-      name: "Sérum Hydratant Eclat Intense",
-      brand: "LANEIGE",
-      price: 24500,
-      quantity: 1,
-      image: "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=800&q=80"
+      id: "p-vivrier-01",
+      name: "Régime de plantain corne fort de première récolte",
+      brand: "GIC Vivrier d’Obala",
+      origin: "Obala (Centre)",
+      unit: "régime",
+      price: 4500,
+      quantity: 3,
+      image: "https://images.pexels.com/photos/2872755/pexels-photo-2872755.jpeg?auto=compress&w=900"
     },
     {
-      id: "p2",
-      name: "Huile de Parfum Élixir Botanique",
-      brand: "DIOR BEAUTY",
-      price: 44000,
-      quantity: 1,
-      image: "https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=800&q=80"
+      id: "p-elevage-01",
+      name: "Alvéole de 30 œufs frais calibre Gros",
+      brand: "Ferme Avicole des Hauts Plateaux",
+      origin: "Bafoussam (Ouest)",
+      unit: "alvéole",
+      price: 2200,
+      quantity: 5,
+      image: "https://images.pexels.com/photos/162712/egg-white-food-protein-162712.jpeg?auto=compress&w=900"
     }
   ]
 };
+
+// 6 chronological agropastoral stages
+const TRACKING_STEPS = [
+  { index: 1, key: "pending_payment", label: "En attente", desc: "Paiement / Virement" },
+  { index: 2, key: "confirmed", label: "Confirmée", desc: "Commande validée" },
+  { index: 3, key: "preparing", label: "En préparation", desc: "Récolte & Conditionnement" },
+  { index: 4, key: "shipped", label: "Expédiée", desc: "Transit logistique" },
+  { index: 5, key: "in_transit", label: "En livraison", desc: "Coursier en route" },
+  { index: 6, key: "delivered", label: "Livrée", desc: "Colis réceptionné" }
+];
 
 export default function SuiviCommandePage() {
   const searchParams = useSearchParams();
@@ -47,182 +86,328 @@ export default function SuiviCommandePage() {
   const [query, setQuery] = useState(initialCode);
   const [searchedOrder, setSearchedOrder] = useState(null);
   const [searched, setSearched] = useState(false);
-
-  useEffect(() => {
-    if (initialCode) {
-      handleSearchCode(initialCode);
-    } else {
-      setSearchedOrder(DEFAULT_DEMO_ORDER);
-    }
-  }, [initialCode, orders]);
+  const [downloading, setDownloading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleSearchCode = (codeToSearch) => {
-    const code = codeToSearch.trim();
-    if (!code) return;
+    const clean = codeToSearch.trim();
+    if (!clean) return;
     setSearched(true);
-    const found = orders ? orders.find(o => o.id.toLowerCase() === code.toLowerCase()) : null;
+    setErrorMessage("");
+
+    const cleanLower = clean.toLowerCase();
+    const found = orders?.find(o => 
+      o.id.toLowerCase() === cleanLower ||
+      (o.customer?.phone && o.customer.phone.includes(clean)) ||
+      (o.phone && o.phone.includes(clean)) ||
+      (o.customer?.email && o.customer.email.toLowerCase() === cleanLower)
+    );
+
     if (found) {
       setSearchedOrder(found);
-    } else if (code.toUpperCase().startsWith("CMD-") || code.toUpperCase().startsWith("ITX-")) {
+    } else if (clean.toUpperCase().startsWith("AGRI-") || clean.toUpperCase().startsWith("CMD-")) {
       setSearchedOrder({
-        ...DEFAULT_DEMO_ORDER,
-        id: code.toUpperCase()
+        ...DEFAULT_AGRI_ORDER,
+        id: clean.toUpperCase()
       });
     } else {
       setSearchedOrder(null);
     }
   };
 
+  useEffect(() => {
+    if (initialCode) {
+      setQuery(initialCode);
+      handleSearchCode(initialCode);
+    } else if (orders && orders.length > 0) {
+      setSearchedOrder(orders[0]);
+    } else {
+      setSearchedOrder(DEFAULT_AGRI_ORDER);
+    }
+  }, [initialCode, orders]);
+
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     handleSearchCode(query);
   };
 
-  const steps = [
-    { step: 1, label: "Nouvelle", desc: "Commande reçue" },
-    { step: 2, label: "Confirmée", desc: "Paiement validé" },
-    { step: 3, label: "Préparation", desc: "En atelier" },
-    { step: 4, label: "Expédiée", desc: "Remise au coursier" },
-    { step: 5, label: "Livrée", desc: "Remise en mains propres" }
-  ];
+  // Determine current active step index (1 to 6)
+  const currentStepIndex = useMemo(() => {
+    if (!searchedOrder) return 2;
+    if (searchedOrder.currentStepIndex) return searchedOrder.currentStepIndex;
 
-  const currentStep = searchedOrder 
-    ? (searchedOrder.currentStepIndex || (searchedOrder.status === "LIVRÉE" ? 5 : searchedOrder.status === "EN COURS D'EXPÉDITION" ? 4 : 1))
-    : 1;
+    const s = (searchedOrder.status || "").toLowerCase();
+    if (s.includes("attente")) return 1;
+    if (s.includes("confirm")) return 2;
+    if (s.includes("préparation") || s.includes("preparation")) return 3;
+    if (s.includes("expédi") || s.includes("expedi")) return 4;
+    if (s.includes("cours") || s.includes("livraison")) return 5;
+    if (s.includes("livrée") || s.includes("livree")) return 6;
+    if (s.includes("annul")) return 0; // Cancelled
+    return 2;
+  }, [searchedOrder]);
+
+  const isCancelled = searchedOrder?.status === "Annulée" || currentStepIndex === 0;
+
+  // PDF Download with zero native alerts
+  const handleDownloadPDF = () => {
+    try {
+      setDownloading(true);
+      setErrorMessage("");
+      generateReceiptPDF(searchedOrder);
+    } catch (err) {
+      console.error(err);
+      setErrorMessage("Échec du téléchargement du reçu : " + (err.message || "Une erreur est survenue."));
+    } finally {
+      setTimeout(() => setDownloading(false), 800);
+    }
+  };
+
+  const supportWhatsappUrl = useMemo(() => {
+    const text = searchedOrder 
+      ? `Bonjour AgriMarket Cameroun, je souhaite avoir des informations sur l'acheminement de ma commande *${searchedOrder.id}*.`
+      : "Bonjour AgriMarket Cameroun, je souhaite suivre une commande.";
+    return `https://wa.me/237699000000?text=${encodeURIComponent(text)}`;
+  }, [searchedOrder]);
 
   return (
-    <main className="suivi-page">
-      {/* Luxury Breadcrumb */}
-      <nav className="collection-breadcrumb container">
+    <main className="agri-track-container">
+      {/* Breadcrumb */}
+      <nav className="agri-checkout-breadcrumb">
         <Link href="/">Accueil</Link>
-        <span>/</span>
+        <span className="sep">/</span>
         <Link href="/commandes">Mes Commandes</Link>
-        <span>/</span>
-        <strong>Suivi de Colis & Colisage</strong>
+        <span className="sep">/</span>
+        <strong>Suivi de Commande & Expédition</strong>
       </nav>
 
-      {/* Hero Header */}
-      <header className="orders-hero container">
-        <div className="orders-hero__inner">
-          <span className="eyebrow">MAISON ITEXAL — SUIVI EXPRESS</span>
-          <h1>Suivez votre colis en temps réel</h1>
-          <p>
-            Saisissez le numéro de référence attribué lors de votre commande pour connaître l'état d'avancement exact de votre livraison.
-          </p>
+      {/* Hero Section */}
+      <section className="agri-checkout-hero agri-track-hero">
+        <span className="agri-checkout-hero-kicker">
+          <Truck width={13} /> Traçabilité & Suivi Logistique Cameroun
+        </span>
+        <h1>Suivez l'état d'avancement de votre commande</h1>
+        <p>
+          Saisissez votre référence de commande AgriMarket pour consulter son statut et les étapes enregistrées de son acheminement.
+        </p>
 
-          {/* Search Form Box */}
-          <form onSubmit={handleSearchSubmit} className="suivi-search-box">
-            <div className="suivi-input-wrap">
-              <Search width={18} className="search-icon" />
-              <input
-                type="text"
-                placeholder="Ex: CMD-81725363 ou ITX-2026-8942"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                required
-              />
-            </div>
-            <button type="submit" className="dior-btn-primary">
-              Rechercher <ArrowRight width={15} />
-            </button>
-          </form>
-        </div>
-      </header>
+        {/* Search Bar */}
+        <form onSubmit={handleSearchSubmit} className="agri-track-search-bar">
+          <Search width={18} style={{ color: "#0b5d33", marginLeft: 10 }} />
+          <input 
+            type="text"
+            className="agri-track-search-input"
+            placeholder="Ex : AGRI-2026-8942 ou votre numéro de téléphone..."
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            required
+          />
+          <button type="submit" className="agri-track-search-btn">
+            Rechercher <ArrowRight width={15} />
+          </button>
+        </form>
+      </section>
 
-      <div className="container" style={{ maxWidth: "1000px" }}>
-        {searchedOrder ? (
-          <article className="order-track-card-luxury">
-            {/* Header Section */}
-            <div className="track-card-top">
-              <div className="track-id-group">
-                <span className="track-kicker">SUIVI DE COMMANDE</span>
-                <h2>{searchedOrder.id}</h2>
-                <span className="track-date">
-                  Effectuée le {searchedOrder.createdAt ? dateFr(searchedOrder.createdAt) : "13 Août 2026"}
-                </span>
-              </div>
-              <div className="track-badge-pill">
-                <Sparkles width={14} />
-                <span>{searchedOrder.status || "Nouvelle"}</span>
-              </div>
+      {/* Main Track Details */}
+      {searchedOrder ? (
+        <article className="agri-conf-card">
+          {/* Header */}
+          <div style={{ background: "#f8faf9", borderBottom: "2px solid #e2ece7", padding: "24px 30px", display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: 16 }}>
+            <div>
+              <span style={{ fontSize: "11px", fontWeight: 800, color: "#0b5d33", textTransform: "uppercase", letterSpacing: "1px", display: "block", marginBottom: 4 }}>
+                COMMANDE AGROPASTORALE
+              </span>
+              <h2 style={{ fontSize: "24px", color: "#07331e", margin: 0, fontWeight: 900 }}>
+                {searchedOrder.id}
+              </h2>
+              <small style={{ color: "#64748b", marginTop: 4, display: "block" }}>
+                Enregistrée le {searchedOrder.createdAt ? dateFr(searchedOrder.createdAt) : "Aujourd'hui"}
+              </small>
             </div>
 
-            {/* 5-Step Haute Couture Progress Tracker Bar */}
-            <div className="track-progress-wrapper">
-              <div className="track-line-bg">
-                <div 
-                  className="track-line-fill" 
-                  style={{ width: `${((currentStep - 1) / 4) * 100}%` }} 
-                />
-              </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <span style={{ 
+                background: isCancelled ? "#fee2e2" : currentStepIndex === 1 ? "#fff7ed" : "#e6f3eb", 
+                color: isCancelled ? "#dc2626" : currentStepIndex === 1 ? "#c2410c" : "#0b5d33",
+                border: `1px solid ${isCancelled ? '#fca5a5' : currentStepIndex === 1 ? '#fdba74' : '#a3e6be'}`,
+                padding: "6px 14px",
+                fontSize: "12px",
+                fontWeight: 800,
+                textTransform: "uppercase",
+                letterSpacing: "0.5px"
+              }}>
+                {searchedOrder.status || "Confirmée"}
+              </span>
+            </div>
+          </div>
 
-              <div className="track-steps-nodes">
-                {steps.map((item) => {
-                  const isDone = item.step <= currentStep;
-                  const isCurrent = item.step === currentStep;
+          {/* 6-Step Chronological Progress Tracker */}
+          <div style={{ padding: "34px 28px 24px" }}>
+            <h3 style={{ fontSize: "14px", fontWeight: 800, color: "#07331e", textTransform: "uppercase", letterSpacing: "0.5px", margin: "0 0 20px" }}>
+              Progression de l'acheminement
+            </h3>
+
+            {isCancelled ? (
+              <div style={{ padding: 20, background: "#fef2f2", border: "1px solid #fecaca", color: "#991b1b", display: "flex", alignItems: "center", gap: 12 }}>
+                <XCircle width={28} />
+                <div>
+                  <strong>Cette commande a été annulée</strong>
+                  <p style={{ margin: "2px 0 0", fontSize: "13px" }}>Aucun prélèvement n'a été effectué ou un remboursement a été initié selon vos consignes.</p>
+                </div>
+              </div>
+            ) : (
+              <div className="agri-timeline-wrap">
+                {TRACKING_STEPS.map((s) => {
+                  const isDone = s.index < currentStepIndex;
+                  const isActive = s.index === currentStepIndex;
                   return (
                     <div 
-                      key={item.step} 
-                      className={`track-node ${isDone ? "is-done" : ""} ${isCurrent ? "is-current" : ""}`}
+                      key={s.index} 
+                      className={`agri-timeline-step ${isActive ? "is-active" : isDone ? "is-done" : ""}`}
                     >
-                      <div className="node-circle">
-                        {isDone ? <CheckCircle2 width={18} /> : item.step}
+                      <div className="agri-timeline-circle">
+                        {isDone ? <CheckCircle2 width={18} /> : s.index}
                       </div>
-                      <strong className="node-label">{item.label}</strong>
-                      <small className="node-desc">{item.desc}</small>
+                      <div className="agri-timeline-label">
+                        <strong>{s.label}</strong>
+                        <small>{s.desc}</small>
+                      </div>
                     </div>
                   );
                 })}
               </div>
+            )}
+          </div>
+
+          {/* Details 3-Column Grid */}
+          <div className="agri-conf-details-grid">
+            <div className="agri-conf-detail-box">
+              <div className="title">
+                <ShieldCheck width={16} /> Contact Client
+              </div>
+              <strong>{searchedOrder.name || searchedOrder.customer?.name || "Client"}</strong>
+              <p>Appel : {searchedOrder.phone || searchedOrder.customer?.phone || "Non renseigné"}</p>
+              <p style={{ color: "#0b5d33", fontWeight: 700, marginTop: 4 }}>
+                WhatsApp : {searchedOrder.whatsapp || searchedOrder.customer?.whatsapp || searchedOrder.phone || "Non renseigné"}
+              </p>
             </div>
 
-            {/* Shipping Info Details Grid */}
-            <div className="order-shipping-meta" style={{ marginTop: "35px" }}>
-              <div>
-                <small>Mode de règlement :</small>
-                <strong>{searchedOrder.paymentMethod || "MTN Mobile Money / OM"}</strong>
+            <div className="agri-conf-detail-box">
+              <div className="title">
+                {searchedOrder.deliveryMode === "RETRAIT_RELAIS" ? <Store width={16} /> : <MapPin width={16} />}
+                {searchedOrder.deliveryMode === "RETRAIT_RELAIS" ? "Comptoir de Retrait" : "Lieu de Livraison"}
               </div>
-              <div>
-                <small>Adresse de destination :</small>
-                <strong>{searchedOrder.city || "Douala"} ({searchedOrder.district || "Bonapriso"})</strong>
-              </div>
-              <div>
-                <small>Total de la commande :</small>
-                <strong>{money ? money(searchedOrder.total) : `${searchedOrder.total} FCFA`}</strong>
-              </div>
+              <strong>
+                {searchedOrder.deliveryMode === "RETRAIT_RELAIS" 
+                  ? "Retrait en point relais agropastoral" 
+                  : (searchedOrder.city || "Douala / Yaoundé")}
+              </strong>
+              <p>
+                {searchedOrder.pickupPoint || (searchedOrder.district ? `${searchedOrder.district} - ` : "") + (searchedOrder.address || "Adresse enregistrée")}
+              </p>
             </div>
 
-            {/* Footer Actions */}
-            <div className="track-card-footer">
-              <button 
-                className="dior-btn-primary"
-                onClick={() => generateReceiptPDF(searchedOrder)}
-              >
-                <Download width={16} /> Télécharger le reçu (PDF)
-              </button>
+            <div className="agri-conf-detail-box">
+              <div className="title">
+                <Truck width={16} /> Mode de Règlement & Montant
+              </div>
+              <strong>{searchedOrder.paymentMethod || "Mobile Money"}</strong>
+              <p>Statut : {searchedOrder.paymentStatus || searchedOrder.status || "Payé"}</p>
+              <p style={{ marginTop: 4, color: "#f37021", fontWeight: 800 }}>
+                Total : {money(searchedOrder.total)}
+              </p>
+            </div>
+          </div>
 
-              <Link 
-                href={`/confirmation/${searchedOrder.id}`} 
-                className="dior-btn-outline"
-              >
-                Voir le détail complet
+          {/* Articles list */}
+          <div style={{ padding: "26px 30px" }}>
+            <h4 style={{ fontSize: "14px", fontWeight: 800, textTransform: "uppercase", color: "#07331e", margin: "0 0 16px" }}>
+              Articles de la commande ({searchedOrder.items?.length || 0})
+            </h4>
+
+            <div style={{ display: "grid", gap: 12 }}>
+              {(searchedOrder.items || []).map((item, i) => (
+                <div key={item.id || i} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 14, padding: "10px 14px", background: "#f8fafc", border: "1px solid #e2e8f0" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                    <img 
+                      src={item.image || "https://images.pexels.com/photos/2872755/pexels-photo-2872755.jpeg?auto=compress&w=900"} 
+                      alt={item.name} 
+                      style={{ width: 48, height: 48, objectFit: "cover", border: "1px solid #cbd5e1" }} 
+                    />
+                    <div>
+                      <strong style={{ fontSize: "13px", color: "#0f172a", display: "block" }}>{item.name}</strong>
+                      <small style={{ color: "#64748b" }}>
+                        Quantité : {item.quantity} {item.unit || "unité"} × {money(item.price)}
+                      </small>
+                    </div>
+                  </div>
+                  <strong style={{ fontSize: "14px", color: "#0b5d33" }}>
+                    {money((item.quantity || 1) * (item.price || 0))}
+                  </strong>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* In-app error if PDF generation fails */}
+          {errorMessage && (
+            <div style={{ margin: "0 30px 16px", padding: "12px 16px", background: "#fef2f2", border: "1px solid #fecaca", color: "#991b1b", fontSize: "13px" }}>
+              {errorMessage}
+            </div>
+          )}
+
+          {/* Action Ribbon */}
+          <div className="agri-conf-actions">
+            <a 
+              href={supportWhatsappUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="agri-btn-whatsapp-share"
+            >
+              <MessageSquare width={16} />
+              Assistance Logistique WhatsApp
+            </a>
+
+            <button 
+              type="button" 
+              className="agri-btn-pdf-download"
+              onClick={handleDownloadPDF}
+              disabled={downloading}
+            >
+              <Download width={16} />
+              {downloading ? "Téléchargement..." : "Télécharger le reçu (PDF)"}
+            </button>
+
+            <Link 
+              href={`/confirmation/${searchedOrder.id}`} 
+              className="agri-btn-track-order"
+            >
+              Voir la confirmation détaillée <ArrowRight width={14} />
+            </Link>
+          </div>
+        </article>
+      ) : (
+        /* Not found card */
+        searched && (
+          <div className="agri-form-card" style={{ padding: "50px 30px", textAlign: "center" }}>
+            <div style={{ width: 56, height: 56, background: "#fff7ed", color: "#ea580c", display: "grid", placeItems: "center", margin: "0 auto 16px" }}>
+              <HelpCircle width={28} height={28} />
+            </div>
+            <h2 style={{ fontSize: 20, color: "#07331e", margin: "0 0 8px" }}>Commande Introuvable</h2>
+            <p style={{ color: "#64748b", maxWidth: "460px", margin: "0 auto 20px", fontSize: "14px" }}>
+              Aucune commande ne correspond à la référence « {query} ». Veuillez vérifier le code inscrit sur votre reçu ou sur votre notification WhatsApp.
+            </p>
+            <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
+              <Link href="/commandes" className="agri-btn-next" style={{ textDecoration: "none" }}>
+                Voir mes commandes
               </Link>
+              <a href="https://wa.me/237699000000" target="_blank" rel="noopener noreferrer" className="agri-btn-prev" style={{ textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 6 }}>
+                <MessageSquare width={14} /> Contacter le support
+              </a>
             </div>
-          </article>
-        ) : (
-          /* Empty / Not Found State */
-          searched && (
-            <div className="orders-empty-card">
-              <Package width={48} height={48} />
-              <h2>Commande introuvable</h2>
-              <p>Aucune référence correspondant à "{query}" n'a été trouvée. Veuillez vérifier votre numéro de commande.</p>
-              <Link href="/commandes" className="dior-btn-primary">
-                Voir toutes mes commandes <ArrowRight width={16} />
-              </Link>
-            </div>
-          )
-        )}
-      </div>
+          </div>
+        )
+      )}
     </main>
   );
 }

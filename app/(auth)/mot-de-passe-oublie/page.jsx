@@ -56,12 +56,12 @@ export default function ForgotPasswordPage() {
             <img src="/logo/AgriMarket_logo.png" alt="AgriMarket" className="auth-exact-logo-icon" />
             <div className="auth-exact-logo-text">
               <span className="auth-exact-brand">AgriMarket</span>
-              <small className="auth-exact-subbrand">Marketplace</small>
+              <small className="auth-exact-subbrand">Du champ à votre table</small>
             </div>
           </Link>
 
           {/* Title */}
-          <h1 className="auth-exact-heading">Forgot password</h1>
+          <h1 className="auth-exact-heading">Mot de passe oublié</h1>
 
           <p style={{ textAlign: "center", fontSize: "13px", color: "#8c7798", marginTop: "-18px", marginBottom: "20px", maxWidth: "380px" }}>
             Saisissez votre e-mail pour recevoir les instructions de réinitialisation.
@@ -106,7 +106,7 @@ export default function ForgotPasswordPage() {
                       setEmail(e.target.value);
                       if (errors.email) setErrors({});
                     }}
-                    placeholder="Enter your email"
+                placeholder="exemple@domaine.com"
                     className={getFieldError(errors, "email") ? "input-error" : ""}
                     required
                   />
@@ -131,14 +131,14 @@ export default function ForgotPasswordPage() {
           {/* Footer Link */}
           <div className="auth-exact-footer" style={{ marginTop: "20px" }}>
             <Link href="/connexion" className="auth-exact-purple-link">
-              <ArrowLeft width={14} /> Back to login
+              <ArrowLeft width={14} /> Retour à la connexion
             </Link>
           </div>
         </div>
 
         {/* Right Side Image */}
         <div className="auth-exact-image-side">
-          <img src="/Images/pexels-introspectivedsgn-30836145.jpg" alt="AgriMarket marketplace agricole" className="auth-exact-img" />
+          <img src="/Images%20Agrimarket/pexels-made-by-pixels-133605980-33364793.jpg" alt="Récoltes locales sur un marché camerounais" className="auth-exact-img" />
         </div>
       </div>
     </main>
