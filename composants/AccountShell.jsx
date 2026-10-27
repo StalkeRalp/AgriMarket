@@ -5,21 +5,21 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useStore } from "@/lib/store";
 import { LogoutModal } from "@/composants/LogoutModal";
+import { Activity, Box, ChevronRight, CircleHelp, Heart, LayoutDashboard, LogOut, MapPin, PackageCheck, Settings2, Store, UserRound, WalletCards } from "lucide-react";
 
 const buyerTabs = [
-	{ href: "/compte", label: "Mon Compte" },
-	{ href: "/profil", label: "Mon Profil & Paramètres" },
-	{ href: "/achats", label: "Mes achats" },
-	{ href: "/favoris", label: "Mes Favoris" },
-	{ href: "/adresses", label: "Mes Adresses" },
-	{ href: "/avis", label: "Mes Avis" },
+	{ href: "/compte", label: "Vue d’ensemble", icon: LayoutDashboard },
+	{ href: "/achats", label: "Mes achats", icon: PackageCheck },
+	{ href: "/favoris", label: "Mes favoris", icon: Heart },
+	{ href: "/adresses", label: "Mes adresses", icon: MapPin },
+	{ href: "/avis", label: "Mes avis", icon: CircleHelp },
 ];
 
 const sellerTabs = [
-	{ href: "/boutique", label: "Ma boutique" },
-	{ href: "/produits", label: "Mes produits" },
-	{ href: "/ventes", label: "Mes ventes" },
-	{ href: "/finances", label: "Mes finances" },
+	{ href: "/boutique", label: "Ma boutique", icon: Store },
+	{ href: "/produits", label: "Mes produits", icon: Box },
+	{ href: "/ventes", label: "Mes ventes", icon: Activity },
+	{ href: "/finances", label: "Finances", icon: WalletCards },
 ];
 
 export function AccountShell({
@@ -33,7 +33,7 @@ export function AccountShell({
 	const router = useRouter();
 	const { user, hydrated } = useStore();
 	const isSeller = Boolean(user?.isSeller || user?.sellerProfile || user?.roles?.includes("SELLER") || user?.role === "SELLER");
-	const tabs = [...buyerTabs, ...(isSeller ? sellerTabs : [{ href: "/boutique", label: "Ouvrir une boutique" }])];
+	const displayName = user?.firstName || user?.name?.split(" ")[0] || "Visiteur";
 	const [showLogoutModal, setShowLogoutModal] = useState(false);
 
 	useEffect(() => {
@@ -62,60 +62,42 @@ export function AccountShell({
 	if (authRequired && !user) return null;
 
 	return (
-		<main className="orders-page">
-			{/* Luxury Breadcrumb matching Commandes/Blog */}
-			<nav className="collection-breadcrumb container">
+		<main className="orders-page account-premium-page">
+			<div className="account-premium-frame container">
+			<nav className="collection-breadcrumb account-premium-breadcrumb">
 				<Link href="/">Accueil</Link>
-				<span>/</span>
+				<ChevronRight aria-hidden="true" />
 				<Link href="/compte">Mon Compte</Link>
-				<span>/</span>
+				<ChevronRight aria-hidden="true" />
 				<strong>{title}</strong>
 			</nav>
-
-			{/* Hero Header matching Commandes/Blog */}
-			<header className="orders-hero container">
-				<div className="orders-hero__inner">
-					<span className="eyebrow">AGRI MARKET CAMEROUN</span>
-					<h1>{title}</h1>
-					<p>{description}</p>
-				</div>
-			</header>
-
-			{/* Sub-Navigation Filter Tabs matching Commandes/Blog */}
-			<div className="container">
-				<div
-					className="orders-filter-bar"
-					style={{
-						overflowX: "auto",
-						flexWrap: "nowrap",
-						whiteSpace: "nowrap",
-					}}
-				>
-					{tabs.map((tab) => {
-						const isActive = pathname === tab.href;
-						return (
-							<Link
-								key={tab.href}
-								href={tab.href}
-								className={`orders-tab ${
-									isActive ? "is-active" : ""
-								}`}
-							>
-								{tab.label}
-							</Link>
-						);
-					})}
-					<button
-						className="orders-tab"
-						style={{ color: "#eb4d4b", marginLeft: "auto" }}
-						onClick={() => setShowLogoutModal(true)}
-					>
-						Déconnexion
-					</button>
-				</div>
-
-				{/* Content Body */}
-				<div>{children}</div>
+			<div className="account-premium-grid">
+				<aside className="account-premium-sidebar" aria-label="Navigation de l’espace personnel">
+					<div className="account-premium-user">
+						<span className="account-premium-avatar">{displayName.slice(0, 1).toUpperCase()}</span>
+						<div><strong>{user?.name || user?.firstName || "Mon espace"}</strong><span>{isSeller ? "Espace acheteur et vendeur" : user ? "Espace acheteur" : "Navigation de l’espace"}</span></div>
+					</div>
+					<nav className="account-premium-nav">
+						<p className="account-premium-nav-label">MON ESPACE</p>
+						{buyerTabs.map((tab) => {
+							const Icon = tab.icon;
+							return <Link key={tab.href} href={tab.href} className={pathname === tab.href ? "is-active" : ""} aria-current={pathname === tab.href ? "page" : undefined}><Icon aria-hidden="true"/><span>{tab.label}</span><ChevronRight aria-hidden="true" className="account-premium-nav-arrow"/></Link>;
+						})}
+						<p className="account-premium-nav-label account-premium-nav-label--seller">{isSeller ? "MON ACTIVITÉ VENDEUR" : "DÉVELOPPER MON ACTIVITÉ"}</p>
+						{(isSeller ? sellerTabs : [{ href: "/boutique", label: "Créer ma boutique", icon: Store }]).map((tab) => {
+							const Icon = tab.icon;
+							return <Link key={tab.href} href={tab.href} className={pathname === tab.href ? "is-active" : ""} aria-current={pathname === tab.href ? "page" : undefined}><Icon aria-hidden="true"/><span>{tab.label}</span><ChevronRight aria-hidden="true" className="account-premium-nav-arrow"/></Link>;
+						})}
+						<Link href="/profil" className="account-premium-settings"><Settings2 aria-hidden="true"/><span>Profil & paramètres</span></Link>
+						{user && <button type="button" className="account-premium-logout" onClick={() => setShowLogoutModal(true)}><LogOut aria-hidden="true"/><span>Déconnexion</span></button>}
+					</nav>
+					<div className="account-premium-help"><span><UserRound aria-hidden="true"/></span><div><strong>Besoin d’aide ?</strong><Link href="/contact">Contacter AgriMarket <ChevronRight aria-hidden="true"/></Link></div></div>
+				</aside>
+				<section className="account-premium-main">
+					<header className="account-premium-heading"><div><span className="eyebrow">ESPACE PERSONNEL · AGRIMARKET</span><h1>{title}</h1><p>{description}</p></div><div className="account-premium-heading-user"><span>{displayName.slice(0, 1).toUpperCase()}</span><div><strong>{displayName}</strong><small>{isSeller ? "Acheteur · Vendeur" : user ? "Acheteur" : "Mode invité"}</small></div></div></header>
+					<div className="account-premium-content">{children}</div>
+				</section>
+			</div>
 			</div>
 
 			{/* Logout Confirmation Modal */}

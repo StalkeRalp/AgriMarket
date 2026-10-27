@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, BookOpen, Clock, Grid3X3, LayoutGrid, Search, SlidersHorizontal, X } from "lucide-react";
+import { ArrowRight, BadgePercent, BookOpen, Clock, Grid3X3, LayoutGrid, PackageCheck, Search, SlidersHorizontal, Tag, X } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
 import { useStore } from "@/lib/store";
@@ -57,9 +57,9 @@ const heroes = {
     "/Images%20Agrimarket/pexels-nasiru-othman-447186959-36757340.jpg"
   ],
   Promotions: [
-    "Offres & promotions",
-    "Des prix avantageux sur vos achats agropastoraux.",
-    "Profitez de remises exclusives sur les semences, intrants et denrées de saison.",
+    "Les bons plans AgriMarket",
+    "De belles économies, au rythme des récoltes.",
+    "Retrouvez ici les offres actuellement proposées sur les produits agricoles, l’élevage, les intrants et les équipements. Les prix affichés sont ceux communiqués par les vendeurs.",
     "/Images%20Agrimarket/pexels-made-by-pixels-133605980-33364793.jpg"
   ],
 };
@@ -150,6 +150,18 @@ export function Collection({ newOnly = false, promoOnly = false, fixedCategory =
   }, [products, newOnly, promoOnly, activeCategory, brand, saleMode, stockOnly, query, sort]);
 
   const totalPages = Math.ceil(items.length / itemsPerPage);
+  const promoStats = useMemo(() => {
+    const discounted = items.filter((product) => Number(product.oldPrice) > Number(product.price));
+    const bestDiscount = discounted.reduce((best, product) => Math.max(
+      best,
+      Math.round(((Number(product.oldPrice) - Number(product.price)) / Number(product.oldPrice)) * 100)
+    ), 0);
+    return {
+      discounted: discounted.length,
+      categories: new Set(items.map((product) => product.category)).size,
+      bestDiscount,
+    };
+  }, [items]);
   const paginatedItems = useMemo(() => {
     const start = (currentPage - 1) * itemsPerPage;
     return items.slice(start, start + itemsPerPage);
@@ -178,7 +190,7 @@ export function Collection({ newOnly = false, promoOnly = false, fixedCategory =
       </nav>
 
       {/* Hero Banner Full-Bleed 100vw Réduit */}
-      <header className="collection-hero collection-hero-fullbleed">
+      <header className={`collection-hero collection-hero-fullbleed${promoOnly ? " collection-hero--promo" : ""}`}>
         <div className="collection-hero__content">
           <p className="eyebrow">{hero[0]}</p>
           <h1>{hero[1]}</h1>
@@ -192,6 +204,24 @@ export function Collection({ newOnly = false, promoOnly = false, fixedCategory =
           <img src={hero[3]} alt={hero[0]} />
         </div>
       </header>
+
+      {promoOnly && (
+        <section className="promo-highlights" aria-label="Les offres promotionnelles AgriMarket">
+          <div className="promo-highlights__intro">
+            <span className="promo-highlights__icon"><BadgePercent aria-hidden="true" /></span>
+            <div>
+              <p className="eyebrow">LE MARCHÉ AU BON PRIX</p>
+              <h2>Des offres utiles pour vos activités</h2>
+              <p>Comparez les prix, choisissez votre quantité et contactez directement le vendeur depuis la fiche produit.</p>
+            </div>
+          </div>
+          <div className="promo-highlights__stats">
+            <div><Tag aria-hidden="true" /><strong>{items.length}</strong><span>offres disponibles</span></div>
+            <div><BadgePercent aria-hidden="true" /><strong>{promoStats.bestDiscount ? `Jusqu’à ${promoStats.bestDiscount}%` : "Prix promo"}</strong><span>de remise affichée</span></div>
+            <div><PackageCheck aria-hidden="true" /><strong>{promoStats.categories}</strong><span>filières concernées</span></div>
+          </div>
+        </section>
+      )}
 
       {/* Category Pills Ribbon */}
       <section className="container category-pills-strip">

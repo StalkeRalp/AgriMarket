@@ -44,12 +44,12 @@ export function ProductCard({ product }) {
         </Link>
 
         <div className="studio-badge-stack">
-          {product.new ? (
+          {discountPercent ? (
+            <span className="studio-tag-pill sale">-{discountPercent}%</span>
+          ) : product.new ? (
             <span className="studio-tag-pill">NOUVEAU</span>
           ) : product.bestseller || product.rating >= 4.8 ? (
             <span className="studio-tag-pill">BESTSELLER</span>
-          ) : discountPercent ? (
-            <span className="studio-tag-pill sale">-{discountPercent}%</span>
           ) : null}
         </div>
 

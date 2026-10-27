@@ -1,0 +1,60 @@
+.collection-hero--promo .collection-hero__content {
+  color: #f8fff9;
+  background: linear-gradient(135deg, #073c25 0%, #075b35 72%, #0b6d3e 100%);
+}
+.collection-hero--promo .collection-hero__content .eyebrow { color: #a9d84b; }
+.collection-hero--promo .collection-hero__content h1 { max-width: 700px; }
+.collection-hero--promo .collection-hero__content > p:not(.eyebrow) { color: rgba(248,255,249,.82); }
+.collection-hero--promo .collection-hero__content > a {
+  gap: 12px;
+  padding: 14px 18px;
+  border: 1px solid rgba(255,255,255,.3);
+  border-radius: 5px;
+  color: #fff;
+  background: #f37021;
+  transition: background .2s ease, transform .2s ease;
+}
+.collection-hero--promo .collection-hero__content > a:hover { background: #df5f12; transform: translateY(-2px); }
+.promo-highlights {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(400px, .85fr);
+  align-items: center;
+  gap: 38px;
+  width: min(1480px, calc(100% - 64px));
+  margin: 0 auto;
+  padding: 38px 0;
+  border-bottom: 1px solid #e0e9e1;
+}
+.promo-highlights__intro { display: flex; align-items: flex-start; gap: 17px; }
+.promo-highlights__icon {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  flex: 0 0 auto;
+  border-radius: 14px;
+  color: #08713d;
+  background: #eaf4ec;
+}
+.promo-highlights__icon svg { width: 25px; height: 25px; }
+.promo-highlights__intro .eyebrow { margin: 0 0 6px; color: #f37021; font-size: 9px; font-weight: 800; letter-spacing: .15em; }
+.promo-highlights__intro h2 { margin: 0 0 6px; color: #073c25; font-size: clamp(20px, 2vw, 27px); }
+.promo-highlights__intro > div > p:last-child { max-width: 600px; margin: 0; color: #67746b; font-size: 13px; line-height: 1.6; }
+.promo-highlights__stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.promo-highlights__stats > div { display: grid; justify-items: center; gap: 5px; padding: 8px 12px; text-align: center; border-left: 1px solid #dce6dc; }
+.promo-highlights__stats svg { width: 19px; height: 19px; color: #f37021; }
+.promo-highlights__stats strong { color: #073c25; font-size: clamp(15px, 1.4vw, 20px); }
+.promo-highlights__stats span { color: #69766d; font-size: 10px; }
+.collection-page:has(.promo-highlights) .category-pills-strip { padding-top: 20px; }
+
+@media (max-width: 800px) {
+  .promo-highlights { grid-template-columns: 1fr; gap: 24px; width: calc(100% - 36px); padding: 28px 0; }
+  .promo-highlights__stats > div:first-child { border-left: 0; }
+}
+@media (max-width: 460px) {
+  .promo-highlights { width: calc(100% - 28px); }
+  .promo-highlights__intro { gap: 12px; }
+  .promo-highlights__icon { width: 42px; height: 42px; border-radius: 12px; }
+  .promo-highlights__stats > div { padding-inline: 6px; }
+  .promo-highlights__stats span { font-size: 9px; }
+}

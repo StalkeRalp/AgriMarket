@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 const PROTECTED_ROUTES = {
   admin: /^\/admin/,
   auth: ['/connexion', '/inscription'],
-  protected: ['/compte', '/adresses'],
+  protected: ['/adresses'],
 };
 
 const ADMIN_ROUTES = /^\/admin/;
@@ -11,7 +11,12 @@ const ADMIN_ROUTES = /^\/admin/;
 export function middleware(request) {
   const { pathname } = request.nextUrl;
   const userCookie = request.cookies.get('user');
-  const user = userCookie ? JSON.parse(userCookie.value) : null;
+  let user = null;
+  try {
+    user = userCookie ? JSON.parse(userCookie.value) : null;
+  } catch {
+    // An invalid or expired optional cookie must not block public navigation.
+  }
 
   // Route de connexion/inscription
   if (PROTECTED_ROUTES.auth.includes(pathname)) {
