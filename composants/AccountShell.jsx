@@ -6,18 +6,25 @@ import { useEffect, useState } from "react";
 import { useStore } from "@/lib/store";
 import { LogoutModal } from "@/composants/LogoutModal";
 
-const tabs = [
+const buyerTabs = [
 	{ href: "/compte", label: "Mon Compte" },
 	{ href: "/profil", label: "Mon Profil & Paramètres" },
-	{ href: "/commandes", label: "Mes Commandes" },
-	{ href: "/suivi-commande", label: "Suivi en Direct" },
+	{ href: "/achats", label: "Mes achats" },
 	{ href: "/favoris", label: "Mes Favoris" },
 	{ href: "/adresses", label: "Mes Adresses" },
 	{ href: "/avis", label: "Mes Avis" },
 ];
 
+const sellerTabs = [
+	{ href: "/boutique", label: "Ma boutique" },
+	{ href: "/produits", label: "Mes produits" },
+	{ href: "/ventes", label: "Mes ventes" },
+	{ href: "/finances", label: "Mes finances" },
+];
+
 export function AccountShell({
 	children,
+	authRequired = true,
 	title = "Mon Profil & Paramètres",
 	description =
 		"Modifiez vos informations personnelles, votre activité agricole et vos préférences de sécurité et notifications.",
@@ -25,13 +32,15 @@ export function AccountShell({
 	const pathname = usePathname();
 	const router = useRouter();
 	const { user, hydrated } = useStore();
+	const isSeller = Boolean(user?.isSeller || user?.sellerProfile || user?.roles?.includes("SELLER") || user?.role === "SELLER");
+	const tabs = [...buyerTabs, ...(isSeller ? sellerTabs : [{ href: "/boutique", label: "Ouvrir une boutique" }])];
 	const [showLogoutModal, setShowLogoutModal] = useState(false);
 
 	useEffect(() => {
-		if (hydrated && !user) {
+		if (authRequired && hydrated && !user) {
 			router.push("/connexion");
 		}
-	}, [user, hydrated, router]);
+	}, [authRequired, user, hydrated, router]);
 
 	if (!hydrated) {
 		return (
@@ -50,7 +59,7 @@ export function AccountShell({
 		);
 	}
 
-	if (!user) return null;
+	if (authRequired && !user) return null;
 
 	return (
 		<main className="orders-page">

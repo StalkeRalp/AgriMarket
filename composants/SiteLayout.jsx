@@ -2,7 +2,6 @@
 
 import { 
   ArrowRight, 
-  ArrowUp, 
   Bell, 
   Bird,
   BookOpen,
@@ -15,47 +14,30 @@ import {
   Handshake,
   Heart, 
   HelpCircle,
-  LockKeyhole, 
+  LayoutDashboard,
+  Mail,
   LogOut, 
   MapPin,
   Menu, 
-  Music2,
+  MessageCircle,
   Package, 
+  Phone,
   Search, 
   ShieldCheck, 
   ShoppingBag, 
+  Smartphone,
   Snowflake,
   Sprout,
   Tractor,
   Truck, 
   User, 
-  UserRound, 
   Wheat,
   X
 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 
-const FacebookIcon = ({ width = 16, height = 16 }) => (
-  <svg width={width} height={height} viewBox="0 0 24 24" fill="currentColor">
-    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-  </svg>
-);
-
-const InstagramIcon = ({ width = 16, height = 16 }) => (
-  <svg width={width} height={height} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
-    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
-    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
-  </svg>
-);
-
-const YoutubeIcon = ({ width = 16, height = 16 }) => (
-  <svg width={width} height={height} viewBox="0 0 24 24" fill="currentColor">
-    <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
-  </svg>
-);
 import { useStore } from "@/lib/store";
 import { money } from "@/lib/format";
 import { LogoutModal } from "@/composants/LogoutModal";
@@ -165,6 +147,12 @@ function HeaderActionButtons({ setShowLogoutModal, isSearchOpen, setIsSearchOpen
         )}
       </div>
 
+      {mounted && user && (
+        <a href="/compte" className="agri-icon-btn mypage-header-link" aria-label="Ouvrir mon espace personnel" title="Mon espace personnel">
+          <LayoutDashboard width={18} height={18} />
+        </a>
+      )}
+
       {/* Bouton Favoris / Wishlist */}
       <Link href="/favoris" className="agri-icon-btn" aria-label="Favoris" title="Mes favoris">
         <Heart width={18} height={18} />
@@ -231,6 +219,9 @@ function HeaderActionButtons({ setShowLogoutModal, isSearchOpen, setIsSearchOpen
               <Link href="/profil" className="agri-account-menu-item">
                 <User width={14} height={14} /> Mon profil & exploitation
               </Link>
+              <a href="/compte" className="agri-account-menu-item">
+                <User width={14} height={14} /> Mon espace personnel
+              </a>
               <Link href="/commandes" className="agri-account-menu-item">
                 <Package width={14} height={14} /> Mes commandes ({ordersCount})
               </Link>
@@ -263,42 +254,64 @@ function AgriMarketFooter({ mounted }) {
 
   return (
     <footer className="fenty-style-footer agri-footer-modern">
-      <div className="agri-footer-features">
-        <div className="agri-footer-features-inner">
-          <div className="agri-footer-feature"><Tractor width={26} /><p>Une plateforme camerounaise au service des filières agropastorales</p></div>
-          <div className="agri-footer-feature"><ShieldCheck width={26} /><p>Des informations claires pour commander en confiance</p></div>
-          <div className="agri-footer-feature"><UserRound width={26} /><p>Une mise en relation entre producteurs et acheteurs</p></div>
-          <Link href="/catalogue" className="agri-footer-feature-cta">Explorer le catalogue <ArrowRight width={16} /></Link>
-        </div>
-      </div>
-      <div className="container agri-footer-shell">
-        <div className="agri-footer-social-bar">
-          <span className="agri-footer-social-label">Suivez-nous</span>
-          <div className="agri-footer-social-icons">
-            <a href="https://facebook.com" target="_blank" rel="noreferrer" aria-label="Facebook" className="social-btn social-fb"><FacebookIcon width={16} height={16} /></a>
-            <a href="https://x.com" target="_blank" rel="noreferrer" aria-label="X" className="social-btn social-x"><X width={16} height={16} /></a>
-            <a href="https://instagram.com" target="_blank" rel="noreferrer" aria-label="Instagram" className="social-btn social-ig"><InstagramIcon width={16} height={16} /></a>
-            <a href="https://youtube.com" target="_blank" rel="noreferrer" aria-label="YouTube" className="social-btn social-yt"><YoutubeIcon width={16} height={16} /></a>
-            <a href="https://tiktok.com" target="_blank" rel="noreferrer" aria-label="TikTok" className="social-btn social-tk"><Music2 width={16} height={16} /></a>
-          </div>
-        </div>
-
+      <div className="agri-footer-shell">
         <div className="agri-footer-grid">
-          <div className="agri-footer-brand-block">
-            <div className="agri-footer-logo">
-              <img src="/logo/AgriMarket_logo.png" alt="AgriMarket Logo" />
-              <div className="agri-footer-brand-text"><strong>AgriMarket</strong><span>Du champ à votre table</span></div>
+          <section className="agri-footer-brand-block">
+            <Link href="/" className="agri-footer-logo" aria-label="AgriMarket, accueil">
+              <img src="/logo/logo1.png" alt="AgriMarket — Du champ à votre table" />
+            </Link>
+            <p className="agri-footer-description">Des produits agricoles de qualité, des producteurs locaux et un marché plus proche de votre quotidien.</p>
+            <h3 className="agri-footer-social-title">Suivez AgriMarket</h3>
+            <div className="agri-footer-social-icons">
+              <a href="https://facebook.com" target="_blank" rel="noreferrer" aria-label="AgriMarket sur Facebook"><img src="/icones/facebook.jpeg" alt="" /></a>
+              <a href="https://instagram.com" target="_blank" rel="noreferrer" aria-label="AgriMarket sur Instagram"><img src="/icones/instagram.jpeg" alt="" /></a>
+              <a href="https://youtube.com" target="_blank" rel="noreferrer" aria-label="AgriMarket sur YouTube"><img src="/icones/youtube.jpeg" alt="" /></a>
+              <a href="https://tiktok.com" target="_blank" rel="noreferrer" aria-label="AgriMarket sur TikTok"><img src="/icones/TIKTOK.jpeg" alt="" /></a>
+              <a href="https://wa.me/237670000000" target="_blank" rel="noreferrer" aria-label="Contacter AgriMarket sur WhatsApp"><img src="/icones/whatsApp.jpeg" alt="" /></a>
             </div>
-            <div className="agri-footer-contact"><a href="tel:+237670000000">+237 670 000 000</a><a href="mailto:support@agrimarket.cm">support@agrimarket.cm</a></div>
-          </div>
+          </section>
 
-          <div className="agri-footer-column"><h4>Pages</h4><ul><li><Link href="/">Accueil</Link></li><li><Link href="/catalogue">Catalogue</Link></li><li><Link href="/services">Services</Link></li><li><Link href="/blog">Conseils agricoles</Link></li><li><Link href="/contact">Contact</Link></li><li><Link href="/faq">FAQ</Link></li></ul></div>
-          <div className="agri-footer-column"><h4>Mon compte</h4><ul><li><Link href="/connexion">Connexion</Link></li><li><Link href="/profil">Profil</Link></li><li><Link href="/commandes">Mes commandes</Link></li><li><Link href="/favoris">Favoris</Link></li><li><Link href="/notifications">Notifications</Link></li></ul></div>
-          <div className="agri-footer-column"><h4>Catégories</h4><ul><li><Link href="/vivriers">Vivriers & récoltes</Link></li><li><Link href="/elevage">Élevage & nutrition</Link></li><li><Link href="/semences">Semences & plants</Link></li><li><Link href="/intrants">Intrants & engrais</Link></li><li><Link href="/materiel">Matériel & équipements</Link></li><li><Link href="/transformes">Produits transformés</Link></li></ul></div>
+          <nav className="agri-footer-column" aria-label="Liens rapides">
+            <h2>Liens rapides</h2>
+            <ul><li><Link href="/">Accueil</Link></li><li><Link href="/catalogue">Nos produits</Link></li><li><Link href="/services">Services</Link></li><li><Link href="/a-propos">À propos</Link></li><li><Link href="/faq">FAQ</Link></li><li><Link href="/contact">Contact</Link></li></ul>
+          </nav>
+
+          <nav className="agri-footer-column" aria-label="Catégories de produits">
+            <h2>Catégories</h2>
+            <ul>
+              <li><Link href="/vivriers"><Sprout />Produits vivriers</Link></li>
+              <li><Link href="/elevage"><Bird />Élevage</Link></li>
+              <li><Link href="/semences"><Wheat />Semences & plants</Link></li>
+              <li><Link href="/intrants"><FlaskConical />Intrants agricoles</Link></li>
+              <li><Link href="/materiel"><Tractor />Matériel agricole</Link></li>
+              <li><Link href="/transformes"><Package />Produits transformés</Link></li>
+            </ul>
+          </nav>
+
+          <section className="agri-footer-column agri-footer-contact-column">
+            <h2>Contactez-nous</h2>
+            <ul>
+              <li><span className="agri-footer-contact-icon"><MapPin /></span><span>Yaoundé, Cameroun<small>Au service des filières locales</small></span></li>
+              <li><span className="agri-footer-contact-icon"><Phone /></span><a href="tel:+237670000000">+237 670 000 000<small>Lun – Sam, 8h – 18h</small></a></li>
+              <li><span className="agri-footer-contact-icon"><MessageCircle /></span><a href="https://wa.me/237670000000" target="_blank" rel="noreferrer">WhatsApp<small>Écrivez à notre équipe</small></a></li>
+              <li><span className="agri-footer-contact-icon"><Mail /></span><a href="mailto:support@agrimarket.cm">support@agrimarket.cm<small>Réponse sous 24h</small></a></li>
+            </ul>
+          </section>
+
+          <section className="agri-footer-column agri-footer-app-column">
+            <h2>AgriMarket partout avec vous</h2>
+            <p>Retrouvez les produits, vos commandes et les services agricoles depuis votre téléphone.</p>
+            <button type="button" className="agri-footer-app-link" onClick={() => window.dispatchEvent(new Event("agrimarket:request-install"))}>
+              <Smartphone /><span>Installer l’application<small>Ajouter AgriMarket à votre téléphone</small></span><ArrowRight />
+            </button>
+          </section>
         </div>
 
-        <div className="agri-footer-divider" />
-        <div className="agri-footer-bottom"><p>© 2026 AgriMarket Cameroun. Tous droits réservés.</p><div className="agri-footer-legal"><Link href="/conditions">CGV</Link><span>•</span><Link href="/confidentialite">Confidentialité</Link><span>•</span><Link href="/a-propos">À propos</Link></div></div>
+        <div className="agri-footer-bottom">
+          <p>© {new Date().getFullYear()} AgriMarket Cameroun. Tous droits réservés.</p>
+          <div className="agri-footer-bottom-mark" aria-hidden="true"><span /><Sprout /><span /></div>
+          <nav className="agri-footer-legal" aria-label="Informations légales"><Link href="/conditions">Conditions d’utilisation</Link><Link href="/confidentialite">Confidentialité</Link><Link href="/a-propos">À propos</Link></nav>
+        </div>
       </div>
     </footer>
   );
@@ -307,23 +320,52 @@ function AgriMarketFooter({ mounted }) {
 export function SiteLayout({ children }) {
   const router = useRouter();
   const pathname = usePathname();
-  const { products } = useStore();
+  const { products, user } = useStore();
   const [searchQuery, setSearchQuery] = useState("");
-  const [showBackToTop, setShowBackToTop] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [routeLoading, setRouteLoading] = useState("idle");
+  const routeLoadingTimer = useRef(null);
 
   useEffect(() => { setMounted(true); }, []);
 
+  useEffect(() => { setIsMobileMenuOpen(false); }, [pathname]);
+
   useEffect(() => {
-    const handleScroll = () => {
-      setShowBackToTop(window.scrollY > 350);
+    const startNavigation = event => {
+      if (event.defaultPrevented || (event.button !== undefined && event.button !== 0) || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      const anchor = event.target instanceof Element ? event.target.closest("a[href]") : null;
+      if (!anchor || anchor.target === "_blank" || anchor.hasAttribute("download")) return;
+      const destination = new URL(anchor.href, window.location.href);
+      const current = new URL(window.location.href);
+      if (destination.origin !== current.origin || (destination.pathname === current.pathname && destination.search === current.search)) return;
+      setRouteLoading("loading");
+      window.clearTimeout(routeLoadingTimer.current);
+      routeLoadingTimer.current = window.setTimeout(() => setRouteLoading("idle"), 10000);
     };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    const startHistoryNavigation = () => {
+      setRouteLoading("loading");
+      window.clearTimeout(routeLoadingTimer.current);
+      routeLoadingTimer.current = window.setTimeout(() => setRouteLoading("idle"), 10000);
+    };
+    document.addEventListener("click", startNavigation, true);
+    window.addEventListener("popstate", startHistoryNavigation);
+    return () => {
+      document.removeEventListener("click", startNavigation, true);
+      window.removeEventListener("popstate", startHistoryNavigation);
+      window.clearTimeout(routeLoadingTimer.current);
+    };
   }, []);
+
+  useEffect(() => {
+    if (routeLoading === "idle") return;
+    setRouteLoading("complete");
+    window.clearTimeout(routeLoadingTimer.current);
+    routeLoadingTimer.current = window.setTimeout(() => setRouteLoading("idle"), 280);
+    return () => window.clearTimeout(routeLoadingTimer.current);
+  }, [pathname]);
 
   const handleSearchSubmit = (e) => {
     if (e && e.preventDefault) e.preventDefault();
@@ -333,16 +375,12 @@ export function SiteLayout({ children }) {
     }
   };
 
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
   const searchResults = searchQuery.trim().length >= 2 && products
-    ? products.filter(p => 
+    ? products.filter(p => !["archived", "suspended", "pending", "draft"].includes(String(p.status || "").toLowerCase()) && (
         p.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         p.brand?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         p.category?.toLowerCase().includes(searchQuery.toLowerCase())
-      ).slice(0, 5)
+      )).slice(0, 5)
     : [];
 
   const isAuthPage = ["/inscription", "/connexion", "/mot-de-passe-oublie", "/reinitialisation-mot-de-passe", "/verification-otp"].includes(pathname);
@@ -350,22 +388,26 @@ export function SiteLayout({ children }) {
   const isContact = pathname === "/contact";
 
   if (isAuthPage) {
-    return <>{children}<AgriMarketFooter mounted={mounted} /></>;
+    return <><RouteLoadingIndicator status={routeLoading} />{children}<AgriMarketFooter mounted={mounted} /></>;
   }
 
   return (
     <div className={`site-layout ${isHome ? "is-home-layout" : ""} ${isContact ? "is-contact-layout" : ""}`}>
+      <RouteLoadingIndicator status={routeLoading} />
       {/* Navigation principale, directement au sommet de la page */}
       <header className={`agri-site-header ${isHome ? "is-home-glass" : ""}`}>
         <div className="agri-header-container">
           {/* Logo AgriMarket */}
-          <Link href="/" className="agri-header-logo">
-            <img src="/logo/AgriMarket_logo.png" alt="AgriMarket Logo" />
-            <div className="agri-logo-tagline">
-              <strong>AgriMarket</strong>
-              <span>Du champ à votre table</span>
-            </div>
-          </Link>
+          <div className="agri-header-brand-group">
+            <Link href="/" className="agri-header-logo">
+              <img src="/logo/logo1.png" alt="AgriMarket — Du champ à votre table" />
+              <div className="agri-logo-tagline">
+                <strong>AgriMarket</strong>
+                <span>Du champ à votre table</span>
+              </div>
+            </Link>
+            {!isHome && <PageDirectionButtons router={router} placement="header" />}
+          </div>
 
           {/* Navigation Centrale avec Menus Déroulants */}
           <nav className="agri-nav-menu">
@@ -505,6 +547,11 @@ export function SiteLayout({ children }) {
                 Contact
               </Link>
             </div>
+            {mounted && user && <div className="agri-nav-item">
+              <a href="/compte" className={`agri-nav-link ${pathname.startsWith("/compte") || ["/profil", "/boutique", "/produits", "/ventes", "/finances", "/achats"].includes(pathname) ? "active" : ""}`}>
+                Mon espace
+              </a>
+            </div>}
           </nav>
 
           {/* Boutons d'action Droite */}
@@ -522,7 +569,9 @@ export function SiteLayout({ children }) {
           <button
             className="mobile-menu-toggle"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            aria-label="Menu"
+            aria-label={isMobileMenuOpen ? "Fermer le menu" : "Ouvrir le menu"}
+            aria-expanded={isMobileMenuOpen}
+            aria-controls="agri-mobile-navigation"
             style={{ display: "none" }}
           >
             {isMobileMenuOpen ? <X width={24} /> : <Menu width={24} />}
@@ -531,7 +580,7 @@ export function SiteLayout({ children }) {
 
         {/* Menu Mobile Tiroir */}
         {isMobileMenuOpen && (
-          <div className="agri-mobile-drawer">
+          <nav className="agri-mobile-drawer" id="agri-mobile-navigation" aria-label="Navigation mobile">
             <Link href="/" onClick={() => setIsMobileMenuOpen(false)}>Accueil</Link>
             <Link href="/catalogue" onClick={() => setIsMobileMenuOpen(false)}>Catalogue Complet</Link>
             <Link href="/a-propos#filieres" onClick={() => setIsMobileMenuOpen(false)}>Filières</Link>
@@ -546,7 +595,8 @@ export function SiteLayout({ children }) {
             <Link href="/blog" onClick={() => setIsMobileMenuOpen(false)}>Conseils Agricoles</Link>
             <Link href="/faq" onClick={() => setIsMobileMenuOpen(false)}>FAQ</Link>
             <Link href="/contact" onClick={() => setIsMobileMenuOpen(false)}>Contact</Link>
-          </div>
+            <a href={mounted && user ? "/compte" : "/connexion"} onClick={() => setIsMobileMenuOpen(false)}>{mounted && user ? "Mon espace personnel" : "Mon compte"}</a>
+          </nav>
         )}
       </header>
 
@@ -558,12 +608,29 @@ export function SiteLayout({ children }) {
       <AgriMarketFooter mounted={mounted} />
 
 
-      {/* Back To Top Floating Action Button */}
-      {showBackToTop && (
-        <button className="back-to-top-btn" onClick={scrollToTop} aria-label="Retour en haut">
-          <ArrowUp width={18} height={18} />
-        </button>
-      )}
     </div>
   );
+}
+
+function PageDirectionButtons({ router, placement = "floating" }) {
+  const goBack = () => {
+    if (typeof window !== "undefined" && window.history.length > 1) router.back();
+    else router.push("/");
+  };
+
+  return (
+    <nav className={`page-direction-controls ${placement === "header" ? "is-header-controls" : ""}`} aria-label="Navigation entre les pages">
+      <button type="button" onClick={goBack} aria-label="Revenir à la page précédente" title="Page précédente">
+        <ChevronLeft width={19} height={19} />
+      </button>
+      <button type="button" onClick={() => router.forward()} aria-label="Avancer vers la page suivante" title="Page suivante">
+        <ChevronRight width={19} height={19} />
+      </button>
+    </nav>
+  );
+}
+
+function RouteLoadingIndicator({ status }) {
+  if (status === "idle") return null;
+  return <div className={`site-route-progress is-${status}`} role="status" aria-label={status === "complete" ? "Page chargée" : "Chargement de la page"}><span /></div>;
 }

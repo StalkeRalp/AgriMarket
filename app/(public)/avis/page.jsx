@@ -192,7 +192,7 @@ export default function ReviewsPage() {
 
   // Avis approuvés
   const approvedReviews = useMemo(() => {
-    return reviews.filter((r) => r.approved !== false);
+    return (Array.isArray(reviews) ? reviews : []).filter((r) => r.approved !== false);
   }, [reviews]);
 
   // Statistiques du réseau

@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useStore } from "@/lib/context/StoreContext";
 import { loginSchema, registerSchema } from "@/lib/validations/auth";
 import { validateData, getFieldError } from "@/lib/securite/validation-helper";
+import { readableError } from "@/lib/utils/readable-error";
 import { errorHandler } from "@/lib/securite/error-handler";
 import { Eye, EyeOff, Lock, Mail, User as UserIcon, ArrowRight } from "lucide-react";
 
@@ -107,7 +108,7 @@ export function AuthForm({ mode = "login" }) {
       const errorResponse = errorHandler.handle(err, {
         action: mode === "login" ? "login" : "register",
       });
-      setGeneralError(errorResponse.error.message || err.message);
+      setGeneralError(readableError(errorResponse?.error?.message || err, "La connexion n’a pas abouti. Vérifiez vos informations puis réessayez."));
     } finally {
       setLoading(false);
     }
@@ -138,9 +139,21 @@ export function AuthForm({ mode = "login" }) {
   };
 
   // Agricultural marketplace brand assets
-  const bgPhoto = mode === "login"
-    ? "/Images%20Agrimarket/pexels-jakubzerdzicki-28100001.jpg"
-    : "/Images%20Agrimarket/pexels-nasiru-othman-447186959-36757340.jpg";
+  const visualStory = mode === "login"
+    ? {
+        image: "/Images%20Agrimarket/pexels-jakubzerdzicki-28100001.jpg",
+        alt: "Étal de produits frais sur un marché local",
+        eyebrow: "LE MARCHÉ AGROPASTORAL",
+        title: "Les produits du Cameroun, à portée de main.",
+        description: "Retrouvez vos offres et poursuivez vos achats en toute simplicité."
+      }
+    : {
+        image: "/Images%20Agrimarket/pexels-nasiru-othman-447186959-36757340.jpg",
+        alt: "Produits agricoles et semences",
+        eyebrow: "L’AGRICULTURE EN MOUVEMENT",
+        title: "Chaque récolte mérite de trouver son marché.",
+        description: "Créez votre espace AgriMarket pour suivre vos achats et vos commandes."
+      };
 
   return (
     <main className="auth-exact-page">
@@ -154,7 +167,7 @@ export function AuthForm({ mode = "login" }) {
 
           {/* Logo Header (Enlarged & Centered) */}
           <Link href="/" className="auth-exact-logo">
-            <img src="/logo/AgriMarket_logo.png" alt="AgriMarket" className="auth-exact-logo-icon" />
+            <img src="/logo/logo1.png" alt="AgriMarket — Du champ à votre table" className="auth-exact-logo-icon" />
             <div className="auth-exact-logo-text">
               <span className="auth-exact-brand">AgriMarket</span>
               <small className="auth-exact-subbrand">Du champ à votre table</small>
@@ -349,7 +362,12 @@ export function AuthForm({ mode = "login" }) {
 
         {/* Right Side Image */}
         <div className="auth-exact-image-side">
-          <img src={bgPhoto} alt="AgriMarket marketplace agricole" className="auth-exact-img" />
+          <img src={visualStory.image} alt={visualStory.alt} className="auth-exact-img" />
+          <div className="auth-exact-image-message">
+            <span>{visualStory.eyebrow}</span>
+            <h2>{visualStory.title}</h2>
+            <p>{visualStory.description}</p>
+          </div>
         </div>
       </div>
     </main>

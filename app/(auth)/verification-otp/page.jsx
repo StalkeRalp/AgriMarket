@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useStore } from "@/lib/context/StoreContext";
+import { readableError } from "@/lib/utils/readable-error";
 import { ShieldCheck, RefreshCw, ArrowRight, CheckCircle2, ArrowLeft } from "lucide-react";
 
 export default function OtpVerificationPage() {
@@ -95,7 +96,7 @@ export default function OtpVerificationPage() {
         }
       }, 1000);
     } catch (err) {
-      setError(err.message || "Code OTP invalide.");
+      setError(readableError(err, "Le code n’a pas pu être vérifié. Vérifiez-le puis réessayez."));
     } finally {
       setLoading(false);
     }
@@ -112,7 +113,7 @@ export default function OtpVerificationPage() {
         setDigits(newCode.split(""));
       }
     } catch (err) {
-      setError(err.message || "Erreur lors du renvoi du code.");
+      setError(readableError(err, "Le code n’a pas pu être renvoyé. Vérifiez votre connexion puis réessayez."));
     }
   };
 
@@ -129,7 +130,7 @@ export default function OtpVerificationPage() {
 
           {/* Logo Header (Enlarged & Centered) */}
           <Link href="/" className="auth-exact-logo">
-            <img src="/logo/AgriMarket_logo.png" alt="AgriMarket" className="auth-exact-logo-icon" />
+            <img src="/logo/logo1.png" alt="AgriMarket — Du champ à votre table" className="auth-exact-logo-icon" />
             <div className="auth-exact-logo-text">
               <span className="auth-exact-brand">AgriMarket</span>
               <small className="auth-exact-subbrand">Du champ à votre table</small>
@@ -213,7 +214,12 @@ export default function OtpVerificationPage() {
 
         {/* Right Side Image */}
         <div className="auth-exact-image-side">
-          <img src="/Images%20Agrimarket/pexels-the-northern-lense-2148554063-31120512.jpg" alt="Élevage local au Cameroun" className="auth-exact-img" />
+          <img src="/Images%20Agrimarket/pexels-the-northern-lense-2148554063-31120512.jpg" alt="Produits carnés proposés sur un marché local" className="auth-exact-img" />
+          <div className="auth-exact-image-message">
+            <span>VÉRIFICATION DU COMPTE</span>
+            <h2>Encore une étape avant votre espace.</h2>
+            <p>Confirmez votre adresse pour protéger votre compte et vos commandes.</p>
+          </div>
         </div>
       </div>
     </main>

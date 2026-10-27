@@ -19,6 +19,7 @@ export function PWAInstallBanner() {
   const [installPrompt, setInstallPrompt] = useState(null);
   const [showBanner, setShowBanner] = useState(false);
   const [installed, setInstalled] = useState(false);
+  const [showInstallHelp, setShowInstallHelp] = useState(false);
 
   useEffect(() => {
     // Ne pas afficher si déjà installé (mode standalone = app installée)
@@ -27,9 +28,14 @@ export function PWAInstallBanner() {
       return;
     }
 
-    // Ne pas réafficher si l'utilisateur a déjà refusé dans cette session
-    const dismissed = sessionStorage.getItem("itexal-pwa-dismissed");
-    if (dismissed) return;
+    const showInstallPrompt = () => setShowBanner(true);
+    window.addEventListener("agrimarket:request-install", showInstallPrompt);
+
+    // Ne pas réafficher automatiquement si l'utilisateur a déjà refusé dans cette session.
+    // Le bouton explicite du footer peut toutefois rouvrir les instructions.
+    let dismissed = false;
+    try { dismissed = window.sessionStorage.getItem("itexal-pwa-dismissed") === "1"; } catch {}
+    if (dismissed) return () => window.removeEventListener("agrimarket:request-install", showInstallPrompt);
 
     const handler = (e) => {
       // Bloquer le prompt natif du navigateur
@@ -41,19 +47,29 @@ export function PWAInstallBanner() {
     };
 
     window.addEventListener("beforeinstallprompt", handler);
-
-    // Détecter si l'app vient d'être installée
-    window.addEventListener("appinstalled", () => {
+    const onInstalled = () => {
       setShowBanner(false);
       setInstalled(true);
       setInstallPrompt(null);
-    });
+      setShowInstallHelp(false);
+    };
 
-    return () => window.removeEventListener("beforeinstallprompt", handler);
+    // Détecter si l'app vient d'être installée
+    window.addEventListener("appinstalled", onInstalled);
+
+    return () => {
+      window.removeEventListener("beforeinstallprompt", handler);
+      window.removeEventListener("appinstalled", onInstalled);
+      window.removeEventListener("agrimarket:request-install", showInstallPrompt);
+    };
   }, []);
 
   const handleInstall = async () => {
-    if (!installPrompt) return;
+    if (!installPrompt) {
+      setShowBanner(false);
+      setShowInstallHelp(true);
+      return;
+    }
     // Déclencher le prompt natif d'installation
     installPrompt.prompt();
     const { outcome } = await installPrompt.userChoice;
@@ -66,10 +82,24 @@ export function PWAInstallBanner() {
   const handleDismiss = () => {
     setShowBanner(false);
     // Ne plus montrer dans cette session
-    sessionStorage.setItem("itexal-pwa-dismissed", "1");
+    try { window.sessionStorage.setItem("itexal-pwa-dismissed", "1"); } catch {}
   };
 
-  if (installed || !showBanner) return null;
+  if (installed) return null;
+
+  if (showInstallHelp) {
+    return (
+      <div role="dialog" aria-modal="true" aria-label="Installer AgriMarket" style={{ position: "fixed", inset: 0, zIndex: 100000, display: "grid", placeItems: "center", padding: 18, background: "rgba(4,28,17,.66)" }}>
+        <section style={{ width: "min(100%, 430px)", padding: 26, border: "1px solid #dce8dc", borderRadius: 16, background: "#fff", color: "#153b25", boxShadow: "0 22px 70px rgba(0,0,0,.25)" }}>
+          <h2 style={{ margin: "0 0 10px", fontSize: 21 }}>Ajouter AgriMarket à votre téléphone</h2>
+          <p style={{ margin: "0 0 18px", color: "#5d6d61", lineHeight: 1.6 }}>Ouvrez le menu de votre navigateur, puis choisissez « Installer l’application » ou « Ajouter à l’écran d’accueil ».</p>
+          <button type="button" onClick={() => setShowInstallHelp(false)} style={{ minHeight: 44, padding: "0 18px", border: 0, borderRadius: 8, background: "#0b5d33", color: "#fff", fontWeight: 750, cursor: "pointer" }}>Compris</button>
+        </section>
+      </div>
+    );
+  }
+
+  if (!showBanner) return null;
 
   return (
     <div

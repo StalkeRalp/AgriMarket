@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import Link from "next/link";
 import { useStore } from "@/lib/store";
-import { useRequireAuth } from "@/composants/RequireAuth";
 import { AccountShell } from "@/composants/AccountShell";
 import { 
+  ArrowRight,
   Check, 
   Save, 
   ShieldCheck, 
@@ -47,9 +48,9 @@ const CAMEROON_REGIONS = [
 ];
 
 export default function ProfilPage() {
-  const { user: authUser, hydrated } = useRequireAuth();
   const { 
     user, 
+    hydrated,
     updateUserProfile, 
     requestPasswordReset, 
     resetPassword, 
@@ -219,8 +220,15 @@ export default function ProfilPage() {
     notify("Votre mot de passe a été réinitialisé avec succès !");
   };
 
+  if (hydrated && !user) return (
+    <AccountShell authRequired={false} title="Mon Profil & Paramètres Agropastoraux" description="Consultez les paramètres proposés pour votre espace AgriMarket.">
+      <section className="mypage-card mypage-guest"><UserCheck size={32}/><span className="mypage-kicker">VOTRE PROFIL</span><h2>Connectez-vous pour gérer votre profil</h2><p>La page est accessible, mais les informations personnelles et les paramètres de sécurité sont associés à votre compte.</p><Link className="mypage-primary" href="/connexion"><ArrowRight size={16}/> Se connecter</Link></section>
+    </AccountShell>
+  );
+
   return (
     <AccountShell
+      authRequired={false}
       title="Mon Profil & Paramètres Agropastoraux"
       description="Gérez votre identité, votre exploitation, votre photo de profil visible sur toute la plateforme et la sécurité de votre compte."
     >

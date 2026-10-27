@@ -33,6 +33,7 @@ import { useEffect, useState, useMemo, useRef } from "react";
 import { useStore } from "@/lib/store";
 import { money } from "@/lib/format";
 import { ProductCard } from "@/composants/ProductCard";
+import ScrollRevealEffects from "@/composants/ScrollRevealEffects";
 
 export default function ProductPage() {
   const { id } = useParams();
@@ -57,6 +58,7 @@ export default function ProductPage() {
     comment: "",
     recommends: true
   });
+  const relatedRailRef = useRef(null);
 
   useEffect(() => {
     if (user && !reviewForm.name) {
@@ -185,7 +187,16 @@ export default function ProductPage() {
   }
 
   const images = product.images?.length ? product.images : [product.image];
-  const related = products.filter((item) => item.category === product.category && item.id !== product.id).slice(0, 4);
+  const related = product ? (() => {
+    const eligible = products.filter(item => item.id !== product.id && !["archived", "suspended", "pending", "draft"].includes(String(item.status || "").toLowerCase()));
+    const sameCategory = eligible.filter(item => item.category === product.category);
+    const otherCategories = eligible.filter(item => item.category !== product.category);
+    return [...sameCategory, ...otherCategories].slice(0, 12);
+  })() : [];
+
+  const scrollRelatedProducts = direction => {
+    relatedRailRef.current?.scrollBy({ left: direction * 340, behavior: "smooth" });
+  };
 
   const DEFAULT_REVIEWS = useMemo(() => [
     {
@@ -706,6 +717,19 @@ export default function ProductPage() {
       </section>
 
       {/* Reviews & Agropastoral Testimonials */}
+      <ScrollRevealEffects
+        className="agri-reviews-motion"
+        revealSelector=".agri-reviews-parallax-layer"
+        parallaxSelector=".agri-reviews-parallax-layer"
+      >
+        <div className="agri-reviews-parallax-backdrop" aria-hidden="true">
+          <div className="agri-reviews-parallax-layer agri-reviews-parallax-layer--left" data-scroll-speed="0.16">
+            <img src="/Images%20Agrimarket/pexels-88107820-9968701.jpg" alt="" loading="lazy" />
+          </div>
+          <div className="agri-reviews-parallax-layer agri-reviews-parallax-layer--right" data-scroll-speed="-0.12">
+            <img src="/Images%20Agrimarket/pexels-made-by-pixels-133605980-33364793.jpg" alt="" loading="lazy" />
+          </div>
+        </div>
       <section className="agri-reviews-section container" id="reviews">
         <div className="agri-reviews-header">
           <div>
@@ -898,18 +922,29 @@ export default function ProductPage() {
           ))}
         </div>
       </section>
+      </ScrollRevealEffects>
 
       {/* Related Products Rail */}
       {!!related.length && (
-        <section className="section section-soft">
-          <div className="container">
-            <div className="section-head">
-              <h2 className="section-title">Vous aimerez aussi</h2>
+        <section className="agri-related-section" aria-label="Produits recommandés">
+          <div className="agri-related-inner">
+            <div className="agri-related-heading">
+              <div>
+                <span className="eyebrow">SÉLECTION AGRIMARKET</span>
+                <h2>À découvrir aussi</h2>
+                <p>Des offres complémentaires sélectionnées dans les filières du Cameroun.</p>
+              </div>
             </div>
-            <div className="product-grid-4cols">
-              {related.map((item) => (
-                <ProductCard product={item} key={item.id} />
-              ))}
+            <div className="agri-related-slider">
+              <button type="button" className="agri-related-arrow agri-related-arrow--prev" onClick={() => scrollRelatedProducts(-1)} aria-label="Faire défiler les produits vers la gauche">
+                <ChevronLeft width={21} height={21}/>
+              </button>
+              <div className="agri-related-rail" ref={relatedRailRef}>
+                {related.map(item => <ProductCard product={item} key={item.id}/>) }
+              </div>
+              <button type="button" className="agri-related-arrow agri-related-arrow--next" onClick={() => scrollRelatedProducts(1)} aria-label="Faire défiler les produits vers la droite">
+                <ChevronRight width={21} height={21}/>
+              </button>
             </div>
           </div>
         </section>

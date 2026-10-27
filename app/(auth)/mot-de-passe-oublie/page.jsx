@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useStore } from "@/lib/context/StoreContext";
 import { forgotPasswordSchema } from "@/lib/validations/auth";
 import { validateData, getFieldError } from "@/lib/securite/validation-helper";
+import { readableError } from "@/lib/utils/readable-error";
 import { Mail, ArrowRight, CheckCircle2, KeyRound, ArrowLeft } from "lucide-react";
 
 export default function ForgotPasswordPage() {
@@ -34,7 +35,7 @@ export default function ForgotPasswordPage() {
       const res = requestPasswordReset(validation.data.email);
       setResetSent(res);
     } catch (err) {
-      setGeneralError(err.message || "Impossible de traiter la demande.");
+      setGeneralError(readableError(err, "Nous n’avons pas pu traiter votre demande. Vérifiez votre connexion puis réessayez."));
     } finally {
       setLoading(false);
     }
@@ -53,7 +54,7 @@ export default function ForgotPasswordPage() {
 
           {/* Logo Header (Enlarged & Centered) */}
           <Link href="/" className="auth-exact-logo">
-            <img src="/logo/AgriMarket_logo.png" alt="AgriMarket" className="auth-exact-logo-icon" />
+            <img src="/logo/logo1.png" alt="AgriMarket — Du champ à votre table" className="auth-exact-logo-icon" />
             <div className="auth-exact-logo-text">
               <span className="auth-exact-brand">AgriMarket</span>
               <small className="auth-exact-subbrand">Du champ à votre table</small>
@@ -139,6 +140,11 @@ export default function ForgotPasswordPage() {
         {/* Right Side Image */}
         <div className="auth-exact-image-side">
           <img src="/Images%20Agrimarket/pexels-made-by-pixels-133605980-33364793.jpg" alt="Récoltes locales sur un marché camerounais" className="auth-exact-img" />
+          <div className="auth-exact-image-message">
+            <span>VOTRE ESPACE AGRIMARKET</span>
+            <h2>Retrouvez votre accès, en toute simplicité.</h2>
+            <p>Nous vous guidons pour reprendre le fil de vos achats. Votre marché vous attend.</p>
+          </div>
         </div>
       </div>
     </main>

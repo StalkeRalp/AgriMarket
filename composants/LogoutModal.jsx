@@ -94,7 +94,7 @@ export function LogoutModal({ isOpen, onClose }) {
             lineHeight: "1.6"
           }}
         >
-          Êtes-vous sûr de vouloir vous déconnecter de votre espace AgriMarket ?
+          En vous déconnectant, votre panier, vos favoris, vos commandes locales, vos adresses et votre historique de navigation seront effacés de cet appareil. Votre compte et vos produits resteront disponibles.
         </p>
 
         <div style={{ display: "flex", alignItems: "center", gap: "14px", justifyContent: "center" }}>
@@ -112,7 +112,7 @@ export function LogoutModal({ isOpen, onClose }) {
             onClick={handleConfirm}
             style={{ height: "46px", flex: 1, background: "#eb4d4b", borderColor: "#eb4d4b", color: "#ffffff", padding: 0 }}
           >
-            OUI, SE DÉCONNECTER
+            OUI, EFFACER ET QUITTER
           </button>
         </div>
       </div>

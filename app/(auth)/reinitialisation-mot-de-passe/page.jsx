@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useStore } from "@/lib/context/StoreContext";
 import { resetPasswordSchema } from "@/lib/validations/auth";
 import { validateData, getFieldError } from "@/lib/securite/validation-helper";
+import { readableError } from "@/lib/utils/readable-error";
 import { Lock, Eye, EyeOff, KeyRound, ArrowRight, CheckCircle2, ArrowLeft } from "lucide-react";
 
 export default function ResetPasswordPage() {
@@ -65,7 +66,7 @@ export default function ResetPasswordPage() {
       resetPassword(validation.data.token, validation.data.password);
       setSuccess(true);
     } catch (err) {
-      setGeneralError(err.message || "Erreur lors de la réinitialisation.");
+      setGeneralError(readableError(err, "Le mot de passe n’a pas pu être modifié. Vérifiez le lien reçu puis réessayez."));
     } finally {
       setLoading(false);
     }
@@ -84,7 +85,7 @@ export default function ResetPasswordPage() {
 
           {/* Logo Header (Enlarged & Centered) */}
           <Link href="/" className="auth-exact-logo">
-            <img src="/logo/AgriMarket_logo.png" alt="AgriMarket" className="auth-exact-logo-icon" />
+            <img src="/logo/logo1.png" alt="AgriMarket — Du champ à votre table" className="auth-exact-logo-icon" />
             <div className="auth-exact-logo-text">
               <span className="auth-exact-brand">AgriMarket</span>
               <small className="auth-exact-subbrand">Du champ à votre table</small>
@@ -218,6 +219,11 @@ export default function ResetPasswordPage() {
         {/* Right Side Image */}
         <div className="auth-exact-image-side">
           <img src="/Images%20Agrimarket/pexels-arnaud-vigne-36746332-7164535.jpg" alt="Production agricole locale" className="auth-exact-img" />
+          <div className="auth-exact-image-message">
+            <span>UN NOUVEAU DÉPART</span>
+            <h2>Un compte sécurisé, prêt pour la suite.</h2>
+            <p>Choisissez un nouveau mot de passe et retrouvez bientôt votre espace personnel.</p>
+          </div>
         </div>
       </div>
     </main>

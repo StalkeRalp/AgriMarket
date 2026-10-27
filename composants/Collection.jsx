@@ -120,6 +120,7 @@ export function Collection({ newOnly = false, promoOnly = false, fixedCategory =
   const items = useMemo(() => {
     return products
       .filter((product) => {
+        if (["archived", "suspended", "pending", "draft"].includes(String(product.status || "").toLowerCase())) return false;
         const text = [product.name, product.brand, product.category, product.reference, product.shortDescription, product.location, product.unit]
           .join(" ")
           .toLowerCase();

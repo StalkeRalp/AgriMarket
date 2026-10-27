@@ -18,6 +18,7 @@ export function AdminLayout({ children }) {
           <a href="/admin/produits">Produits</a>
           <a href="/admin/categories">Catégories</a>
           <a href="/admin/clients">Clients</a>
+          <a href="/admin/vendeurs">Boutiques à valider</a>
           <a href="/admin/commandes">Commandes</a>
         </nav>
       </aside>

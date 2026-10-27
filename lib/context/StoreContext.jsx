@@ -1,20 +1,24 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { getProducts, getUsers, getOrders, getReviews, getNotifications } from "@/lib/services/api";
 import db from "@/db.json";
+import { storage } from "@/lib/securite/storage";
 
 const StoreContext = createContext(null);
 
 function read(key, fallback) {
-  try { return JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback)); }
-  catch { return fallback; }
+  return storage.get(key, fallback);
+}
+
+function persist(key, value) {
+  if (value === null || value === undefined) return storage.remove(key);
+  return storage.set(key, value);
 }
 
 function refreshLegacyNotifications(storedNotifications) {
   if (!Array.isArray(storedNotifications)) return db.notifications || [];
   const seededNotifications = new Map((db.notifications || []).map(item => [item.id, item]));
-  return storedNotifications.map(item => {
+  return storedNotifications.filter(item => item && typeof item === "object").map(item => {
     const seeded = seededNotifications.get(item.id);
     const containsLegacyBeautyContent = /beauty|dior|itx-2026|sérum|rituel beauté|prestige/i
       .test(`${item.title || ""} ${item.message || ""}`);
@@ -23,20 +27,21 @@ function refreshLegacyNotifications(storedNotifications) {
 }
 
 function refreshLegacyReviews(storedReviews) {
-  if (!Array.isArray(storedReviews) || !storedReviews.length) return db.reviews || [];
-  const containsLegacyCosmetics = storedReviews.some(r =>
+  const validReviews = Array.isArray(storedReviews) ? storedReviews.filter(item => item && typeof item === "object") : [];
+  if (!validReviews.length) return [];
+  const containsLegacyCosmetics = validReviews.some(r =>
     ["p1", "p2", "p9"].includes(r.productId) ||
     /couleur|teinte|texture légère|routine/i.test(`${r.title || ""} ${r.comment || ""}`)
   );
   if (containsLegacyCosmetics) {
-    const custom = storedReviews.filter(r =>
+    const custom = validReviews.filter(r =>
       !["rv-1", "rv-2", "rv-3"].includes(r.id) &&
       !["p1", "p2", "p9"].includes(r.productId) &&
       !/couleur|teinte|texture légère|routine/i.test(`${r.title || ""} ${r.comment || ""}`)
     );
     return [...custom, ...(db.reviews || [])];
   }
-  return storedReviews;
+  return validReviews;
 }
 
 export function StoreProvider({ children }) {
@@ -60,45 +65,57 @@ export function StoreProvider({ children }) {
   const [resetTokens, setResetTokens] = useState({});
 
   useEffect(() => {
+    storage.cleanExpired();
     // Purge old cosmetics cached products if present
-    try {
-      if (localStorage.getItem("itexal.products")) {
-        localStorage.removeItem("itexal.products");
-        localStorage.removeItem("itexal.cart");
-      }
-    } catch {}
+    if (storage.get("itexal.products", null)) {
+      storage.remove("itexal.products");
+      storage.remove("itexal.cart");
+    }
 
     const seedProducts = catalogSeed;
     const cachedProducts = read("agrimarket.products", seedProducts);
-    setProducts(cachedProducts);
-    setCart(read("agrimarket.cart", {}));
-    setWishlist(read("agrimarket.wishlist", []));
-    setOrders(read("agrimarket.orders", db.orders || []));
-    setNotifications(refreshLegacyNotifications(read("agrimarket.notifications", db.notifications || [])));
-    setUsers(read("agrimarket.users", db.users || []));
-    setUser(read("agrimarket.user", null));
-    setPendingVerification(read("agrimarket.pendingVerification", null));
-    setResetTokens(read("agrimarket.resetTokens", {}));
-    setAddresses(read("agrimarket.addresses", db.addresses || []));
-    setReviews(refreshLegacyReviews(read("agrimarket.reviews", db.reviews || [])));
-    setProductRequests(read("agrimarket.productRequests", []));
-    setRecentProducts(read("agrimarket.recentProducts", []));
+    const cachedCart = read("agrimarket.cart", {});
+    setProducts(Array.isArray(cachedProducts) ? cachedProducts.filter(item => item && typeof item === "object" && item.id) : seedProducts);
+    const safeCart = cachedCart && typeof cachedCart === "object" && !Array.isArray(cachedCart) ? cachedCart : {};
+    setCart(Object.fromEntries(Object.entries(safeCart).filter(([, quantity]) => Number.isFinite(Number(quantity)) && Number(quantity) > 0).map(([id, quantity]) => [id, Math.floor(Number(quantity))])));
+    const cachedWishlist = read("agrimarket.wishlist", []);
+    setWishlist(Array.isArray(cachedWishlist) ? [...new Set(cachedWishlist.filter(id => typeof id === "string" || typeof id === "number"))] : []);
+    const cachedOrders = read("agrimarket.orders", db.orders || []);
+    setOrders(Array.isArray(cachedOrders) ? cachedOrders.filter(item => item && typeof item === "object" && item.id) : (db.orders || []));
+    const cachedNotifications = read("agrimarket.notifications", db.notifications || []);
+    setNotifications(refreshLegacyNotifications(Array.isArray(cachedNotifications) ? cachedNotifications : (db.notifications || [])));
+    const cachedUsers = read("agrimarket.users", db.users || []);
+    setUsers(Array.isArray(cachedUsers) ? cachedUsers.filter(item => item && typeof item === "object" && item.email) : (db.users || []));
+    const cachedUser = read("agrimarket.user", null);
+    setUser(cachedUser && typeof cachedUser === "object" ? cachedUser : null);
+    const cachedPendingVerification = read("agrimarket.pendingVerification", null);
+    setPendingVerification(cachedPendingVerification && typeof cachedPendingVerification === "object" ? cachedPendingVerification : null);
+    const cachedResetTokens = read("agrimarket.resetTokens", {});
+    setResetTokens(cachedResetTokens && typeof cachedResetTokens === "object" && !Array.isArray(cachedResetTokens) ? cachedResetTokens : {});
+    const cachedAddresses = read("agrimarket.addresses", db.addresses || []);
+    setAddresses(Array.isArray(cachedAddresses) ? cachedAddresses.filter(item => item && typeof item === "object") : (db.addresses || []));
+    const cachedReviews = read("agrimarket.reviews", db.reviews || []);
+    setReviews(refreshLegacyReviews(Array.isArray(cachedReviews) ? cachedReviews : (db.reviews || [])));
+    const cachedRequests = read("agrimarket.productRequests", []);
+    setProductRequests(Array.isArray(cachedRequests) ? cachedRequests.filter(item => item && typeof item === "object") : []);
+    const cachedRecent = read("agrimarket.recentProducts", []);
+    setRecentProducts(Array.isArray(cachedRecent) ? cachedRecent.slice(0, 8) : []);
     setHydrated(true);
   }, []);
 
-  useEffect(() => { if (hydrated) localStorage.setItem("agrimarket.products", JSON.stringify(products)); }, [products, hydrated]);
-  useEffect(() => { if (hydrated) localStorage.setItem("agrimarket.cart", JSON.stringify(cart)); }, [cart, hydrated]);
-  useEffect(() => { if (hydrated) localStorage.setItem("agrimarket.wishlist", JSON.stringify(wishlist)); }, [wishlist, hydrated]);
-  useEffect(() => { if (hydrated) localStorage.setItem("agrimarket.orders", JSON.stringify(orders)); }, [orders, hydrated]);
-  useEffect(() => { if (hydrated) localStorage.setItem("agrimarket.notifications", JSON.stringify(notifications)); }, [notifications, hydrated]);
-  useEffect(() => { if (hydrated) localStorage.setItem("agrimarket.users", JSON.stringify(users)); }, [users, hydrated]);
-  useEffect(() => { if (hydrated) user ? localStorage.setItem("agrimarket.user", JSON.stringify(user)) : localStorage.removeItem("agrimarket.user"); }, [user, hydrated]);
-  useEffect(() => { if (hydrated) pendingVerification ? localStorage.setItem("agrimarket.pendingVerification", JSON.stringify(pendingVerification)) : localStorage.removeItem("agrimarket.pendingVerification"); }, [pendingVerification, hydrated]);
-  useEffect(() => { if (hydrated) localStorage.setItem("agrimarket.resetTokens", JSON.stringify(resetTokens)); }, [resetTokens, hydrated]);
-  useEffect(() => { if (hydrated) localStorage.setItem("agrimarket.addresses", JSON.stringify(addresses)); }, [addresses, hydrated]);
-  useEffect(() => { if (hydrated) localStorage.setItem("agrimarket.reviews", JSON.stringify(reviews)); }, [reviews, hydrated]);
-  useEffect(() => { if (hydrated) localStorage.setItem("agrimarket.productRequests", JSON.stringify(productRequests)); }, [productRequests, hydrated]);
-  useEffect(() => { if (hydrated) localStorage.setItem("agrimarket.recentProducts", JSON.stringify(recentProducts.slice(0, 8))); }, [recentProducts, hydrated]);
+  useEffect(() => { if (hydrated) persist("agrimarket.products", products); }, [products, hydrated]);
+  useEffect(() => { if (hydrated) persist("agrimarket.cart", cart); }, [cart, hydrated]);
+  useEffect(() => { if (hydrated) persist("agrimarket.wishlist", wishlist); }, [wishlist, hydrated]);
+  useEffect(() => { if (hydrated) persist("agrimarket.orders", orders); }, [orders, hydrated]);
+  useEffect(() => { if (hydrated) persist("agrimarket.notifications", notifications); }, [notifications, hydrated]);
+  useEffect(() => { if (hydrated) persist("agrimarket.users", users); }, [users, hydrated]);
+  useEffect(() => { if (hydrated) persist("agrimarket.user", user); }, [user, hydrated]);
+  useEffect(() => { if (hydrated) persist("agrimarket.pendingVerification", pendingVerification); }, [pendingVerification, hydrated]);
+  useEffect(() => { if (hydrated) persist("agrimarket.resetTokens", resetTokens); }, [resetTokens, hydrated]);
+  useEffect(() => { if (hydrated) persist("agrimarket.addresses", addresses); }, [addresses, hydrated]);
+  useEffect(() => { if (hydrated) persist("agrimarket.reviews", reviews); }, [reviews, hydrated]);
+  useEffect(() => { if (hydrated) persist("agrimarket.productRequests", productRequests); }, [productRequests, hydrated]);
+  useEffect(() => { if (hydrated) persist("agrimarket.recentProducts", recentProducts.slice(0, 8)); }, [recentProducts, hydrated]);
 
   const notify = useCallback(message => {
     setToastMessage(message);
@@ -165,7 +182,7 @@ export function StoreProvider({ children }) {
 
   const login = useCallback((email, password) => {
     const emailLower = email.toLowerCase();
-    let found = users.find(u => u.email.toLowerCase() === emailLower);
+    let found = (Array.isArray(users) ? users : []).find(u => u?.email?.toLowerCase() === emailLower);
     
     // SIMULATION MODE: Auto-create user on the fly for any email/password entered
     if (!found) {
@@ -253,7 +270,15 @@ export function StoreProvider({ children }) {
 
   const resetPassword = useCallback((token, newPassword) => {
     const cleanToken = (token || "").trim();
-    const entry = resetTokens[cleanToken] || { email: "user@itexal.com" };
+    const entry = resetTokens[cleanToken];
+    if (!entry?.email || (entry.expiresAt && Date.now() > entry.expiresAt)) {
+      setResetTokens(current => {
+        const next = { ...current };
+        delete next[cleanToken];
+        return next;
+      });
+      throw new Error("Ce lien de réinitialisation a expiré ou n’est plus valide. Demandez-en un nouveau.");
+    }
 
     setUsers(current => {
       const exists = current.some(u => u.email.toLowerCase() === entry.email.toLowerCase());
@@ -290,7 +315,33 @@ export function StoreProvider({ children }) {
 
   const logout = useCallback(() => {
     setUser(null);
-    notify("Déconnexion réussie.");
+    setCart({});
+    setWishlist([]);
+    setOrders([]);
+    setNotifications([]);
+    setAddresses([]);
+    setProductRequests([]);
+    setRecentProducts([]);
+    setPendingVerification(null);
+    setResetTokens({});
+    setCartOpen(false);
+
+    // Clear persisted activity immediately; state effects also keep the empty values in sync.
+    const clearedSessionData = {
+      "agrimarket.cart": {},
+      "agrimarket.wishlist": [],
+      "agrimarket.orders": [],
+      "agrimarket.notifications": [],
+      "agrimarket.addresses": [],
+      "agrimarket.productRequests": [],
+      "agrimarket.recentProducts": [],
+      "agrimarket.resetTokens": {},
+    };
+    Object.entries(clearedSessionData).forEach(([key, value]) => storage.set(key, value));
+    storage.remove("agrimarket.pendingVerification");
+    storage.remove("agrimarket.user");
+
+    notify("Déconnexion réussie. Vos données de session ont été effacées.");
   }, [notify]);
 
   const checkout = useCallback((customer, customShipping = null, customPayment = {}) => {
@@ -396,13 +447,107 @@ export function StoreProvider({ children }) {
       setUsers(currentUsers =>
         currentUsers.map(u => (u.id === base.id || u.email === base.email ? { ...u, ...profileData } : u))
       );
-      try {
-        localStorage.setItem("agrimarket.user", JSON.stringify(updated));
-      } catch {}
+      persist("agrimarket.user", updated);
       return updated;
     });
     notify("Profil et paramètres mis à jour avec succès !");
   }, [notify]);
+
+  const saveSellerProfile = useCallback((profileData) => {
+    if (!user?.id) throw new Error("Connectez-vous pour configurer votre boutique.");
+    const roles = [...new Set([...(Array.isArray(user.roles) ? user.roles : []), "BUYER", "SELLER"])];
+    const hasSellerProfile = Boolean(user.isSeller || user.sellerProfile || user.roles?.includes("SELLER") || user.role === "SELLER");
+    const sellerStatus = user.sellerStatus === "active" || (hasSellerProfile && !["pending", "rejected"].includes(user.sellerStatus)) ? "active" : "pending";
+    const sellerProfile = {
+      ...(user.sellerProfile || {}),
+      ...profileData,
+      shopName: String(profileData.shopName || "").trim(),
+      description: String(profileData.description || "").trim(),
+      city: String(profileData.city || "").trim(),
+      region: String(profileData.region || "").trim(),
+      phone: String(profileData.phone || "").trim(),
+    };
+    if (!sellerProfile.shopName || !sellerProfile.city || !sellerProfile.region || !sellerProfile.phone) {
+      throw new Error("Renseignez le nom de la boutique, la ville, la région et un téléphone.");
+    }
+    const updated = {
+      ...user,
+      isSeller: true,
+      roles,
+      sellerProfile,
+      sellerStatus,
+      sellerSubmittedAt: sellerStatus === "pending" ? new Date().toISOString() : (user.sellerSubmittedAt || new Date().toISOString()),
+    };
+    setUser(updated);
+    setUsers(current => current.map(item => item.id === user.id ? { ...item, ...updated } : item));
+    persist("agrimarket.user", updated);
+    notify(updated.sellerStatus === "pending" ? "Demande de boutique enregistrée, en attente de validation." : "Informations de boutique enregistrées.");
+    return updated;
+  }, [user, notify]);
+
+  const saveSellerProduct = useCallback((productData, productId = null) => {
+    if (!user?.id || !(user.isSeller || user.sellerProfile || user.roles?.includes("SELLER") || user.role === "SELLER")) {
+      throw new Error("Configurez d’abord votre boutique pour gérer des produits.");
+    }
+    if (user.sellerStatus === "pending" || user.sellerStatus === "rejected") {
+      throw new Error(user.sellerStatus === "pending" ? "Votre boutique attend sa validation avant la publication de produits." : "Votre boutique doit être validée avant la publication de produits.");
+    }
+    const name = String(productData.name || "").trim();
+    const price = Number(productData.price);
+    const stock = Number(productData.stock);
+    if (!name || !productData.category || !productData.unit || !Number.isFinite(price) || price <= 0 || !Number.isFinite(stock) || stock < 0) {
+      throw new Error("Vérifiez le nom, la catégorie, l’unité, le prix et le stock du produit.");
+    }
+    const existing = productId ? products.find(item => item.id === productId && item.sellerId === user.id) : null;
+    if (productId && !existing) throw new Error("Ce produit n’existe pas dans votre boutique.");
+    const shopCity = user.sellerProfile?.city || user.city || "";
+    const shopRegion = user.sellerProfile?.region || user.region || "";
+    const product = {
+      ...(existing || {}), ...productData,
+      id: existing?.id || `prod-${Date.now()}`,
+      sellerId: user.id,
+      brand: user.sellerProfile?.shopName || user.name || "Boutique AgriMarket",
+      location: shopCity && shopRegion ? `${shopCity} (${shopRegion})` : shopCity || shopRegion,
+      name,
+      price,
+      stock: Math.floor(stock),
+      minOrder: Math.max(1, Number(productData.minOrder) || 1),
+      status: "published",
+      updatedAt: new Date().toISOString(),
+      ...(existing ? {} : { createdAt: new Date().toISOString() }),
+    };
+    setProducts(current => existing ? current.map(item => item.id === existing.id ? product : item) : [product, ...current]);
+    notify(existing ? "Produit mis à jour." : "Produit ajouté à votre boutique.");
+    return product;
+  }, [user, products, notify]);
+
+  const archiveSellerProduct = useCallback((productId) => {
+    if (!user?.id) return false;
+    const owned = products.some(item => item.id === productId && item.sellerId === user.id);
+    if (!owned) { notify("Ce produit n’appartient pas à votre boutique."); return false; }
+    setProducts(current => current.map(item => item.id === productId && item.sellerId === user.id ? { ...item, status: "archived", updatedAt: new Date().toISOString() } : item));
+    notify("Produit archivé. Il n’est plus proposé au catalogue.");
+    return true;
+  }, [user, products, notify]);
+
+  const updateSellerOrderStatus = useCallback((orderId, nextStatus) => {
+    if (!user?.id) return false;
+    const allowed = { confirmed: ["accepted", "refused"], pending_payment: [], accepted: ["preparing"], preparing: ["ready"], ready: ["shipping"], shipping: ["completed"] };
+    const labels = { accepted: "Acceptée par le vendeur", refused: "Refusée par le vendeur", preparing: "En préparation", ready: "Prête", shipping: "En livraison", completed: "Terminée" };
+    let changed = false;
+    setOrders(current => current.map(order => {
+      if (order.id !== orderId) return order;
+      const ownedLines = (order.items || []).some(line => products.some(product => product.id === (line.productId || line.id) && product.sellerId === user.id));
+      const currentStatus = order.sellerStatuses?.[user.id]?.statusCode || order.statusCode || "confirmed";
+      if (!ownedLines || !allowed[currentStatus]?.includes(nextStatus)) return order;
+      changed = true;
+      const sellerState = order.sellerStatuses?.[user.id] || {};
+      const timeline = [...(sellerState.timeline || []), { step: labels[nextStatus], date: new Date().toISOString(), description: `${labels[nextStatus]} — mise à jour par la boutique.` }];
+      return { ...order, sellerStatuses: { ...(order.sellerStatuses || {}), [user.id]: { status: labels[nextStatus], statusCode: nextStatus, timeline, updatedAt: new Date().toISOString() } } };
+    }));
+    notify(changed ? "Statut de la commande mis à jour." : "Cette action n’est pas disponible pour cette commande.");
+    return changed;
+  }, [user, products, notify]);
 
   const addReview = useCallback((reviewData) => {
     const newReview = {
@@ -420,13 +565,13 @@ export function StoreProvider({ children }) {
   const value = useMemo(() => ({
     products, setProducts, cart, lines, itemCount, subtotal, shipping, total,
     addToCart, setQuantity, removeFromCart, wishlist, toggleWishlist,
-    orders, setOrders, checkout, users, setUsers, user, setUser, updateUserProfile, login, register, logout,
+    orders, setOrders, checkout, users, setUsers, user, setUser, updateUserProfile, saveSellerProfile, saveSellerProduct, archiveSellerProduct, updateSellerOrderStatus, login, register, logout,
     pendingVerification, setPendingVerification, sendOtp, verifyOtp, requestPasswordReset, resetPassword,
     addresses, setAddresses, reviews, setReviews, addReview, productRequests, setProductRequests,
     recentProducts, rememberProduct, cartOpen, setCartOpen, hydrated, notify,
     notifications, setNotifications, unreadNotificationsCount,
     markAllNotificationsAsRead, toggleNotificationReadStatus, deleteNotification, addNotification
-  }), [products, cart, lines, itemCount, subtotal, shipping, total, addToCart, setQuantity, removeFromCart, wishlist, toggleWishlist, orders, checkout, users, user, updateUserProfile, login, register, logout, pendingVerification, sendOtp, verifyOtp, requestPasswordReset, resetPassword, addresses, reviews, setReviews, addReview, productRequests, recentProducts, rememberProduct, cartOpen, hydrated, notify, notifications, unreadNotificationsCount, markAllNotificationsAsRead, toggleNotificationReadStatus, deleteNotification, addNotification]);
+  }), [products, cart, lines, itemCount, subtotal, shipping, total, addToCart, setQuantity, removeFromCart, wishlist, toggleWishlist, orders, checkout, users, user, updateUserProfile, saveSellerProfile, saveSellerProduct, archiveSellerProduct, updateSellerOrderStatus, login, register, logout, pendingVerification, sendOtp, verifyOtp, requestPasswordReset, resetPassword, addresses, reviews, setReviews, addReview, productRequests, recentProducts, rememberProduct, cartOpen, hydrated, notify, notifications, unreadNotificationsCount, markAllNotificationsAsRead, toggleNotificationReadStatus, deleteNotification, addNotification]);
 
   return <StoreContext.Provider value={value}>{children}<div className={`toast ${toastMessage ? "show" : ""}`} role="status">{toastMessage}</div></StoreContext.Provider>;
 }

@@ -2301,12 +2301,6 @@
   transform: translateY(-2px);
 }
 
-/* Footer solid sur homepage */
-.site-layout.is-home-layout .fenty-style-footer {
-  background: #051e12;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
-
 @media (max-width: 992px) {
   .agri-filieres-grid,
   .agri-coops-grid,
