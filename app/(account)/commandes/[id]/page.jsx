@@ -115,6 +115,11 @@ export default function OrderDetailPage() {
           </div>
         </div>
 
+        {Array.isArray(order.timeline) && order.timeline.length > 0 && <section className="buyer-order-updates" aria-label="Historique de progression de la commande">
+          <div><span className="mypage-kicker">SUIVI DE COMMANDE</span><h3>Progression communiquée par la boutique</h3></div>
+          <ol>{[...order.timeline].reverse().map((event,index)=><li key={`${event.date || index}-${index}`}><span className="buyer-order-update-dot"/><div><strong>{event.step || event.status || "Mise à jour"}</strong><p>{event.description || "Le statut de la commande a été mis à jour."}</p>{event.date && <small>{dateFr(event.date)} · {new Date(event.date).toLocaleTimeString("fr-CM",{hour:"2-digit",minute:"2-digit"})}</small>}</div></li>)}</ol>
+        </section>}
+
         {/* Items List */}
         <div style={{ padding: "24px 28px" }}>
           <h3 style={{ fontSize: "15px", fontWeight: 800, textTransform: "uppercase", color: "#07331e", margin: "0 0 16px" }}>

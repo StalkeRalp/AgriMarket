@@ -496,24 +496,26 @@ export default function ProfilPage() {
               />
             </div>
 
-            <div className="agri-field-group">
-              <label>Région (Cameroun)</label>
-              <select name="region" value={form.region} onChange={handleChange}>
-                {CAMEROON_REGIONS.map(reg => (
-                  <option key={reg} value={reg}>{reg}</option>
-                ))}
-              </select>
-            </div>
+            <div className="agri-profile-location-row">
+              <div className="agri-field-group">
+                <label>Région (Cameroun)</label>
+                <select name="region" value={form.region} onChange={handleChange}>
+                  {CAMEROON_REGIONS.map(reg => (
+                    <option key={reg} value={reg}>{reg}</option>
+                  ))}
+                </select>
+              </div>
 
-            <div className="agri-field-group">
-              <label>Ville / Bassin Agricole</label>
-              <input
-                type="text"
-                name="city"
-                value={form.city}
-                onChange={handleChange}
-                placeholder="Ex: Foumbot, Obala, Bafoussam, Yaoundé..."
-              />
+              <div className="agri-field-group">
+                <label>Ville / Bassin Agricole</label>
+                <input
+                  type="text"
+                  name="city"
+                  value={form.city}
+                  onChange={handleChange}
+                  placeholder="Ex: Foumbot, Obala, Bafoussam, Yaoundé..."
+                />
+              </div>
             </div>
           </div>
         </article>

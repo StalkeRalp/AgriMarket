@@ -11,6 +11,7 @@ export default function ScrollRevealEffects({ children, className = "", revealSe
 
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
     let revealObserver;
+    let mutationObserver;
     if ("IntersectionObserver" in window && revealSelector) {
       revealObserver = new IntersectionObserver((entries) => {
         entries.forEach((entry) => {
@@ -21,11 +22,22 @@ export default function ScrollRevealEffects({ children, className = "", revealSe
         });
       }, { threshold: 0.12 });
       root.querySelectorAll(revealSelector).forEach((item) => revealObserver.observe(item));
+      mutationObserver = new MutationObserver((records) => {
+        records.forEach((record) => record.addedNodes.forEach((node) => {
+          if (node.nodeType !== Node.ELEMENT_NODE) return;
+          if (node.matches(revealSelector)) revealObserver.observe(node);
+          node.querySelectorAll(revealSelector).forEach((item) => revealObserver.observe(item));
+        }));
+      });
+      mutationObserver.observe(root, { childList: true, subtree: true });
     } else if (revealSelector) {
       root.querySelectorAll(revealSelector).forEach((item) => item.classList.add("is-visible"));
     }
 
-    if (reduceMotion.matches || !parallaxSelector) return () => revealObserver?.disconnect();
+    if (reduceMotion.matches || !parallaxSelector) return () => {
+      revealObserver?.disconnect();
+      mutationObserver?.disconnect();
+    };
 
     const layers = [...root.querySelectorAll(parallaxSelector)];
     let frame = 0;
@@ -45,6 +57,7 @@ export default function ScrollRevealEffects({ children, className = "", revealSe
     window.addEventListener("resize", updateParallax);
     return () => {
       revealObserver?.disconnect();
+      mutationObserver?.disconnect();
       cancelAnimationFrame(frame);
       window.removeEventListener("scroll", updateParallax);
       window.removeEventListener("resize", updateParallax);

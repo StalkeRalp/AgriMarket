@@ -5,12 +5,12 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useStore } from "@/lib/store";
 import { LogoutModal } from "@/composants/LogoutModal";
-import { Activity, Box, ChevronRight, CircleHelp, Heart, LayoutDashboard, LogOut, MapPin, PackageCheck, Settings2, Store, UserRound, WalletCards } from "lucide-react";
+import { Activity, Box, ChevronRight, CircleHelp, LayoutDashboard, LogOut, MapPin, PackageCheck, Settings2, Store, Truck, UserRound, WalletCards } from "lucide-react";
 
 const buyerTabs = [
 	{ href: "/compte", label: "Vue d’ensemble", icon: LayoutDashboard },
 	{ href: "/achats", label: "Mes achats", icon: PackageCheck },
-	{ href: "/favoris", label: "Mes favoris", icon: Heart },
+	{ href: "/historique-livraisons", label: "Mes livraisons", icon: Truck },
 	{ href: "/adresses", label: "Mes adresses", icon: MapPin },
 	{ href: "/avis", label: "Mes avis", icon: CircleHelp },
 ];

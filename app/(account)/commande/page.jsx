@@ -27,6 +27,7 @@ import {
 import { useRouter } from "next/navigation";
 import { useState, useEffect, useRef, useMemo } from "react";
 import { useStore } from "@/lib/store";
+import { calculatePromoDiscount } from "@/lib/promo";
 import { money } from "@/lib/format";
 import { useRequireAuth } from "@/composants/RequireAuth";
 
@@ -106,6 +107,19 @@ export default function CheckoutPage() {
   const [submitting, setSubmitting] = useState(false);
   const [geolocating, setGeolocating] = useState(false);
   const [geoError, setGeoError] = useState("");
+  const [appliedPromo, setAppliedPromo] = useState(null);
+
+  useEffect(() => {
+    try {
+      const savedPromo = JSON.parse(sessionStorage.getItem("agrimarket.checkoutPromo") || "null");
+      if (savedPromo?.code) setAppliedPromo(savedPromo);
+    } catch {
+      sessionStorage.removeItem("agrimarket.checkoutPromo");
+    }
+  }, []);
+
+  const promoResult = appliedPromo ? calculatePromoDiscount(appliedPromo.code, lines) : { valid: false, discount: 0 };
+  const promoDiscount = promoResult.valid ? promoResult.discount : 0;
 
   // In-App Alert Modal State (replaces native alert)
   const [alertModal, setAlertModal] = useState({ open: false, title: "", message: "" });
@@ -217,7 +231,7 @@ export default function CheckoutPage() {
     return reg.defaultFee;
   }, [data.deliveryMode, data.region, subtotal]);
 
-  const finalTotal = subtotal + calculatedShipping;
+  const finalTotal = Math.max(0, subtotal + calculatedShipping - promoDiscount);
 
   // Selected pickup point details
   const selectedPickup = useMemo(() => {
@@ -405,7 +419,8 @@ export default function CheckoutPage() {
         pickupPoint: data.deliveryMode === "RETRAIT_RELAIS" ? `${selectedPickup.name} - ${selectedPickup.address}` : null
       };
 
-      const order = checkout(orderCustomer, calculatedShipping, paymentDetails);
+      const order = checkout(orderCustomer, calculatedShipping, { ...paymentDetails, promoCode: promoResult.valid ? appliedPromo.code : "", discountAmount: promoDiscount });
+      sessionStorage.removeItem("agrimarket.checkoutPromo");
       router.push(`/confirmation/${order.id}`);
     } catch (err) {
       console.error("Order creation error:", err);
@@ -979,6 +994,7 @@ export default function CheckoutPage() {
                 <span>Frais d'acheminement</span>
                 <strong>{calculatedShipping === 0 ? "Gratuit (0 FCFA)" : money(calculatedShipping)}</strong>
               </div>
+              {promoDiscount > 0 && <div className="agri-summary-total-row agri-discount-line"><span>Code promo ({appliedPromo.code})</span><strong>-{money(promoDiscount)}</strong></div>}
               <div className="agri-summary-total-row grand-total">
                 <span>Total Net à Payer</span>
                 <strong>{money(finalTotal)}</strong>

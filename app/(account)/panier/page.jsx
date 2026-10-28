@@ -18,11 +18,15 @@ import {
 import { useState } from "react";
 import { useStore } from "@/lib/store";
 import { money } from "@/lib/format";
+import { calculatePromoDiscount } from "@/lib/promo";
 
 export default function CartPage() {
   const { lines, subtotal, shipping, total, setQuantity, removeFromCart } = useStore();
   const [promoCode, setPromoCode] = useState("");
-  const [discountApplied, setDiscountApplied] = useState(false);
+  const [appliedPromo, setAppliedPromo] = useState(null);
+  const [promoError, setPromoError] = useState("");
+  const promoResult = appliedPromo ? calculatePromoDiscount(appliedPromo.code, lines) : { valid: false, discount: 0 };
+  const promoDiscount = promoResult.valid ? promoResult.discount : 0;
 
   // Seuil de gratuité logistique / livraison à partir de 25 000 FCFA
   const freeShippingThreshold = 25000;
@@ -31,9 +35,17 @@ export default function CartPage() {
 
   const handleApplyPromo = (e) => {
     e.preventDefault();
-    if (promoCode.trim()) {
-      setDiscountApplied(true);
+    const result = calculatePromoDiscount(promoCode, lines);
+    if (!result.valid) {
+      setAppliedPromo(null);
+      setPromoError("Ce code promo n’est pas valide pour les produits de votre panier.");
+      sessionStorage.removeItem("agrimarket.checkoutPromo");
+      return;
     }
+    const code = promoCode.trim().toUpperCase();
+    setAppliedPromo({ code });
+    setPromoError("");
+    sessionStorage.setItem("agrimarket.checkoutPromo", JSON.stringify({ code }));
   };
 
   return (
@@ -215,12 +227,13 @@ export default function CartPage() {
                       Appliquer
                     </button>
                   </form>
-                  {discountApplied && (
+                  {appliedPromo && promoDiscount > 0 && (
                     <p className="agri-promo-success-msg">
                       <CheckCircle2 width={13} height={13} />
-                      <span>Remise privilège de 2 500 FCFA appliquée !</span>
+                      <span>Code {appliedPromo.code} appliqué : {money(promoDiscount)} de remise.</span>
                     </p>
                   )}
+                  {promoError && <p className="agri-promo-error-msg" role="alert">{promoError}</p>}
 
                   {/* Lignes de calcul */}
                   <div className="agri-summary-lines-stack">
@@ -234,16 +247,16 @@ export default function CartPage() {
                       <strong>{remainingForFreeShipping === 0 ? "GRATUIT" : money(shipping)}</strong>
                     </div>
 
-                    {discountApplied && (
+                    {promoDiscount > 0 && (
                       <div className="agri-summary-line agri-discount-line">
-                        <span>Remise avantage</span>
-                        <strong>-{money(2500)}</strong>
+                        <span>Remise promo ({appliedPromo.code})</span>
+                        <strong>-{money(promoDiscount)}</strong>
                       </div>
                     )}
 
                     <div className="agri-summary-total-line">
                       <span>Montant total TTC</span>
-                      <strong>{money(discountApplied ? Math.max(0, total - 2500) : total)}</strong>
+                      <strong>{money(Math.max(0, total - promoDiscount))}</strong>
                     </div>
                   </div>
 

@@ -3,7 +3,6 @@ import { NextResponse } from 'next/server';
 const PROTECTED_ROUTES = {
   admin: /^\/admin/,
   auth: ['/connexion', '/inscription'],
-  protected: ['/adresses'],
 };
 
 const ADMIN_ROUTES = /^\/admin/;
@@ -23,17 +22,6 @@ export function middleware(request) {
     // Rediriger vers compte si déjà connecté
     if (user) {
       return NextResponse.redirect(new URL('/compte', request.url));
-    }
-    return NextResponse.next();
-  }
-
-  // Routes protégées (nécessite une authentification)
-  if (PROTECTED_ROUTES.protected.includes(pathname) || 
-      pathname.startsWith('/adresses')) {
-    if (!user) {
-      const loginUrl = new URL('/connexion', request.url);
-      loginUrl.searchParams.set('redirect', pathname);
-      return NextResponse.redirect(loginUrl);
     }
     return NextResponse.next();
   }

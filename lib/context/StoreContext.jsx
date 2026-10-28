@@ -5,6 +5,7 @@ import db from "@/db.json";
 import { storage } from "@/lib/securite/storage";
 
 const StoreContext = createContext(null);
+const ELIGIBLE_STORE_TYPES = ["cooperative", "association", "enterprise", "merchant"];
 
 function read(key, fallback) {
   return storage.get(key, fallback);
@@ -348,7 +349,8 @@ export function StoreProvider({ children }) {
     if (!lines.length) throw new Error("Le panier est vide.");
 
     const finalShipping = customShipping !== null ? Number(customShipping) : (lines.length ? 1500 : 0);
-    const finalTotal = subtotal + finalShipping;
+    const discountAmount = Math.min(subtotal, Math.max(0, Number(customPayment.discountAmount) || 0));
+    const finalTotal = subtotal + finalShipping - discountAmount;
     const randomSuffix = Math.floor(10000 + Math.random() * 90000);
     const orderId = `AGRI-2026-${randomSuffix}`;
 
@@ -404,6 +406,8 @@ export function StoreProvider({ children }) {
       })),
       subtotal,
       shipping: finalShipping,
+      promoCode: String(customPayment.promoCode || "").trim().toUpperCase(),
+      discount: discountAmount,
       total: finalTotal,
       timeline: [
         {
@@ -456,8 +460,6 @@ export function StoreProvider({ children }) {
   const saveSellerProfile = useCallback((profileData) => {
     if (!user?.id) throw new Error("Connectez-vous pour configurer votre boutique.");
     const roles = [...new Set([...(Array.isArray(user.roles) ? user.roles : []), "BUYER", "SELLER"])];
-    const hasSellerProfile = Boolean(user.isSeller || user.sellerProfile || user.roles?.includes("SELLER") || user.role === "SELLER");
-    const sellerStatus = user.sellerStatus === "active" || (hasSellerProfile && !["pending", "rejected"].includes(user.sellerStatus)) ? "active" : "pending";
     const sellerProfile = {
       ...(user.sellerProfile || {}),
       ...profileData,
@@ -466,22 +468,36 @@ export function StoreProvider({ children }) {
       city: String(profileData.city || "").trim(),
       region: String(profileData.region || "").trim(),
       phone: String(profileData.phone || "").trim(),
+      organizationType: String(profileData.organizationType || "").trim(),
+      organizationName: String(profileData.organizationName || "").trim(),
+      registrationNumber: String(profileData.registrationNumber || "").trim(),
+      profilePhoto: String(profileData.profilePhoto || user.sellerProfile?.profilePhoto || "").trim(),
+      bannerPhoto: String(profileData.bannerPhoto ?? user.sellerProfile?.bannerPhoto ?? "").trim(),
     };
-    if (!sellerProfile.shopName || !sellerProfile.city || !sellerProfile.region || !sellerProfile.phone) {
-      throw new Error("Renseignez le nom de la boutique, la ville, la région et un téléphone.");
+    if (!ELIGIBLE_STORE_TYPES.includes(sellerProfile.organizationType)) {
+      throw new Error("Les boutiques AgriMarket sont réservées aux coopératives, associations, entreprises et commerçants professionnels.");
+    }
+    if (!sellerProfile.organizationName || !sellerProfile.registrationNumber || !sellerProfile.shopName || !sellerProfile.city || !sellerProfile.region || !sellerProfile.phone) {
+      throw new Error("Renseignez l’identifiant officiel de la structure, son nom, celui de la boutique, la ville, la région et un téléphone.");
+    }
+    if (!sellerProfile.profilePhoto.startsWith("data:image/")) {
+      throw new Error("Ajoutez une photo de profil pour votre boutique.");
+    }
+    if (sellerProfile.bannerPhoto && !sellerProfile.bannerPhoto.startsWith("data:image/")) {
+      throw new Error("La photo de bannière doit être une image valide.");
     }
     const updated = {
       ...user,
       isSeller: true,
       roles,
       sellerProfile,
-      sellerStatus,
-      sellerSubmittedAt: sellerStatus === "pending" ? new Date().toISOString() : (user.sellerSubmittedAt || new Date().toISOString()),
+      sellerStatus: "active",
+      sellerSubmittedAt: user.sellerSubmittedAt || new Date().toISOString(),
     };
     setUser(updated);
     setUsers(current => current.map(item => item.id === user.id ? { ...item, ...updated } : item));
     persist("agrimarket.user", updated);
-    notify(updated.sellerStatus === "pending" ? "Demande de boutique enregistrée, en attente de validation." : "Informations de boutique enregistrées.");
+    notify(user.sellerProfile ? "Informations de la boutique enregistrées." : "Votre boutique est créée. Vous pouvez publier vos produits.");
     return updated;
   }, [user, notify]);
 
@@ -489,8 +505,8 @@ export function StoreProvider({ children }) {
     if (!user?.id || !(user.isSeller || user.sellerProfile || user.roles?.includes("SELLER") || user.role === "SELLER")) {
       throw new Error("Configurez d’abord votre boutique pour gérer des produits.");
     }
-    if (user.sellerStatus === "pending" || user.sellerStatus === "rejected") {
-      throw new Error(user.sellerStatus === "pending" ? "Votre boutique attend sa validation avant la publication de produits." : "Votre boutique doit être validée avant la publication de produits.");
+    if (!ELIGIBLE_STORE_TYPES.includes(user.sellerProfile?.organizationType)) {
+      throw new Error("Complétez d’abord les informations de votre structure professionnelle.");
     }
     const name = String(productData.name || "").trim();
     const price = Number(productData.price);
@@ -502,6 +518,11 @@ export function StoreProvider({ children }) {
     if (productId && !existing) throw new Error("Ce produit n’existe pas dans votre boutique.");
     const shopCity = user.sellerProfile?.city || user.city || "";
     const shopRegion = user.sellerProfile?.region || user.region || "";
+    const discountPercent = Math.min(90, Math.max(0, Number(productData.discountPercent) || 0));
+    const salePrice = discountPercent ? Math.max(1, Math.round(price * (1 - discountPercent / 100))) : price;
+    const images = (Array.isArray(productData.images) ? productData.images : [])
+      .filter(image => typeof image === "string" && (image.startsWith("data:image/") || /^https?:\/\//i.test(image)))
+      .slice(0, 5);
     const product = {
       ...(existing || {}), ...productData,
       id: existing?.id || `prod-${Date.now()}`,
@@ -509,7 +530,13 @@ export function StoreProvider({ children }) {
       brand: user.sellerProfile?.shopName || user.name || "Boutique AgriMarket",
       location: shopCity && shopRegion ? `${shopCity} (${shopRegion})` : shopCity || shopRegion,
       name,
-      price,
+      price: salePrice,
+      oldPrice: discountPercent ? price : null,
+      promo: Boolean(discountPercent || String(productData.promoCode || "").trim()),
+      promoCode: String(productData.promoCode || "").trim().toUpperCase(),
+      discountPercent,
+      images,
+      image: images[0] || productData.image || existing?.image || "",
       stock: Math.floor(stock),
       minOrder: Math.max(1, Number(productData.minOrder) || 1),
       status: "published",
@@ -533,21 +560,47 @@ export function StoreProvider({ children }) {
   const updateSellerOrderStatus = useCallback((orderId, nextStatus) => {
     if (!user?.id) return false;
     const allowed = { confirmed: ["accepted", "refused"], pending_payment: [], accepted: ["preparing"], preparing: ["ready"], ready: ["shipping"], shipping: ["completed"] };
-    const labels = { accepted: "Acceptée par le vendeur", refused: "Refusée par le vendeur", preparing: "En préparation", ready: "Prête", shipping: "En livraison", completed: "Terminée" };
-    let changed = false;
-    setOrders(current => current.map(order => {
-      if (order.id !== orderId) return order;
-      const ownedLines = (order.items || []).some(line => products.some(product => product.id === (line.productId || line.id) && product.sellerId === user.id));
-      const currentStatus = order.sellerStatuses?.[user.id]?.statusCode || order.statusCode || "confirmed";
-      if (!ownedLines || !allowed[currentStatus]?.includes(nextStatus)) return order;
-      changed = true;
-      const sellerState = order.sellerStatuses?.[user.id] || {};
-      const timeline = [...(sellerState.timeline || []), { step: labels[nextStatus], date: new Date().toISOString(), description: `${labels[nextStatus]} — mise à jour par la boutique.` }];
-      return { ...order, sellerStatuses: { ...(order.sellerStatuses || {}), [user.id]: { status: labels[nextStatus], statusCode: nextStatus, timeline, updatedAt: new Date().toISOString() } } };
+    const sellerLabels = { accepted: "Acceptée par le vendeur", refused: "Refusée par le vendeur", preparing: "En préparation", ready: "Prête à être expédiée", shipping: "En livraison", completed: "Livrée" };
+    const buyerStatus = {
+      accepted: { status: "Confirmée par le vendeur", statusCode: "confirmed", currentStepIndex: 2 },
+      refused: { status: "Refusée par la boutique", statusCode: "refused", currentStepIndex: 0 },
+      preparing: { status: "En préparation", statusCode: "preparing", currentStepIndex: 3 },
+      ready: { status: "Prête à être expédiée", statusCode: "shipped", currentStepIndex: 4 },
+      shipping: { status: "En cours de livraison", statusCode: "in_transit", currentStepIndex: 5 },
+      completed: { status: "Livrée", statusCode: "delivered", currentStepIndex: 6 },
+    };
+    const order = orders.find(item => item.id === orderId);
+    const ownedLines = (order?.items || []).some(line => products.some(product => product.id === (line.productId || line.id) && product.sellerId === user.id));
+    const currentStatus = order?.sellerStatuses?.[user.id]?.statusCode || order?.statusCode || "confirmed";
+    if (!order || !ownedLines || !allowed[currentStatus]?.includes(nextStatus)) {
+      notify("Cette action n’est pas disponible pour cette commande.");
+      return false;
+    }
+
+    const now = new Date().toISOString();
+    const status = buyerStatus[nextStatus];
+    const event = {
+      step: status.status,
+      statusCode: status.statusCode,
+      date: now,
+      description: `${status.status} — mise à jour par la boutique.`,
+      actor: "seller",
+    };
+    const sellerState = order.sellerStatuses?.[user.id] || {};
+    const sellerTimeline = [...(sellerState.timeline || []), { ...event, step: sellerLabels[nextStatus] }];
+    setOrders(current => current.map(item => item.id !== orderId ? item : {
+      ...item,
+      ...status,
+      updatedAt: now,
+      timeline: [...(item.timeline || []), event],
+      sellerStatuses: {
+        ...(item.sellerStatuses || {}),
+        [user.id]: { status: sellerLabels[nextStatus], statusCode: nextStatus, timeline: sellerTimeline, updatedAt: now },
+      },
     }));
-    notify(changed ? "Statut de la commande mis à jour." : "Cette action n’est pas disponible pour cette commande.");
-    return changed;
-  }, [user, products, notify]);
+    notify("Statut de la commande mis à jour. Le client peut voir la progression dans le suivi.");
+    return true;
+  }, [user, products, orders, notify]);
 
   const addReview = useCallback((reviewData) => {
     const newReview = {

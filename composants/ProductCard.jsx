@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useStore } from "@/lib/store";
 import { money } from "@/lib/format";
 
-export function ProductCard({ product }) {
+export function ProductCard({ product, className = "", reveal = false, style }) {
   const router = useRouter();
   const { addToCart, wishlist, toggleWishlist } = useStore();
 
@@ -30,7 +30,9 @@ export function ProductCard({ product }) {
 
   return (
     <article
-      className="product-card Image2-product-card"
+      className={`product-card Image2-product-card${className ? ` ${className}` : ""}`}
+      data-shop-detail-reveal={reveal ? "" : undefined}
+      style={style}
       data-product-id={product.id}
       tabIndex={0}
       role="link"
@@ -46,6 +48,8 @@ export function ProductCard({ product }) {
         <div className="studio-badge-stack">
           {discountPercent ? (
             <span className="studio-tag-pill sale">-{discountPercent}%</span>
+          ) : product.promoCode ? (
+            <span className="studio-tag-pill sale">CODE PROMO</span>
           ) : product.new ? (
             <span className="studio-tag-pill">NOUVEAU</span>
           ) : product.bestseller || product.rating >= 4.8 ? (

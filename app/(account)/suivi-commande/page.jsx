@@ -136,6 +136,15 @@ export default function SuiviCommandePage() {
     if (!searchedOrder) return 2;
     if (searchedOrder.currentStepIndex) return searchedOrder.currentStepIndex;
 
+    const statusCode = String(searchedOrder.statusCode || "").toLowerCase();
+    if (["cancelled", "canceled", "refused"].includes(statusCode)) return 0;
+    if (["delivered", "completed"].includes(statusCode)) return 6;
+    if (["in_transit", "shipping"].includes(statusCode)) return 5;
+    if (["shipped", "ready"].includes(statusCode)) return 4;
+    if (["preparing"].includes(statusCode)) return 3;
+    if (["confirmed", "accepted"].includes(statusCode)) return 2;
+    if (["pending_payment"].includes(statusCode)) return 1;
+
     const s = (searchedOrder.status || "").toLowerCase();
     if (s.includes("attente")) return 1;
     if (s.includes("confirm")) return 2;
@@ -147,7 +156,7 @@ export default function SuiviCommandePage() {
     return 2;
   }, [searchedOrder]);
 
-  const isCancelled = searchedOrder?.status === "Annulée" || currentStepIndex === 0;
+  const isCancelled = ["Annulée", "Refusée par la boutique"].includes(searchedOrder?.status) || currentStepIndex === 0;
 
   // PDF Download with zero native alerts
   const handleDownloadPDF = () => {
@@ -251,8 +260,8 @@ export default function SuiviCommandePage() {
               <div style={{ padding: 20, background: "#fef2f2", border: "1px solid #fecaca", color: "#991b1b", display: "flex", alignItems: "center", gap: 12 }}>
                 <XCircle width={28} />
                 <div>
-                  <strong>Cette commande a été annulée</strong>
-                  <p style={{ margin: "2px 0 0", fontSize: "13px" }}>Aucun prélèvement n'a été effectué ou un remboursement a été initié selon vos consignes.</p>
+                  <strong>{searchedOrder.statusCode === "refused" ? "La boutique a refusé cette commande" : "Cette commande a été annulée"}</strong>
+                  <p style={{ margin: "2px 0 0", fontSize: "13px" }}>Consultez l’historique des mises à jour ou contactez l’équipe AgriMarket si vous avez besoin d’aide.</p>
                 </div>
               </div>
             ) : (

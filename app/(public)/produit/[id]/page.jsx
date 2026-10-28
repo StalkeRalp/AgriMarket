@@ -31,6 +31,7 @@ import {
 import { useParams } from "next/navigation";
 import { useEffect, useState, useMemo, useRef } from "react";
 import { useStore } from "@/lib/store";
+import { shopSlug } from "@/lib/shops";
 import { money } from "@/lib/format";
 import { ProductCard } from "@/composants/ProductCard";
 import ScrollRevealEffects from "@/composants/ScrollRevealEffects";
@@ -397,7 +398,7 @@ export default function ProductPage() {
           {/* Right Product Details Info Stack */}
           <div className="product-details">
             <div className="product-meta-line">
-              <Link className="product-brand-link" href={`/catalogue?q=${product.brand}`}>
+              <Link className="product-brand-link" href={`/boutiques/${encodeURIComponent(product.sellerId || shopSlug(product.brand || "boutique"))}`}>
                 {product.brand}
               </Link>
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -451,6 +452,7 @@ export default function ProductPage() {
               </div>
               {discountPercent && <span className="discount-pill-tag">-{discountPercent}% ÉCONOMISÉS</span>}
             </div>
+            {product.promoCode && <div className="product-seller-promo-code"><span>CODE PROMO À COMMUNIQUER</span><code>{product.promoCode}</code><small>Indiquez ce code au vendeur lors de votre commande.</small></div>}
 
             <div style={{ display: "flex", flexDirection: "column", gap: "8px", margin: "16px 0" }}>
               <div className="product-format">

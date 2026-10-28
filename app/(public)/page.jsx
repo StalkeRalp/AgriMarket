@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { 
   ArrowRight, 
   Bird,
@@ -31,6 +31,7 @@ import { ProductCard } from "@/composants/ProductCard";
 import { ScrollReveal } from "@/composants/ScrollReveal";
 import ScrollRevealEffects from "@/composants/ScrollRevealEffects";
 import { useStore } from "@/lib/store";
+import { getPublicShops } from "@/lib/shops";
 
 const heroVideo = "/Videos%20Agrimarket/16464963_1920_1080_50fps.mp4";
 
@@ -133,42 +134,6 @@ const strategicFilieres = [
   }
 ];
 
-// Coopératives vedettes
-const featuredCooperatives = [
-  {
-    name: "Coopérative Maraîchère de Foumbot",
-    region: "Ouest (Noun)",
-    badge: "Coopérative Agréée",
-    speciality: "Tomates, Piments, Poivrons & Légumes frais",
-    productsCount: 18,
-    link: "/catalogue?filter=coops"
-  },
-  {
-    name: "GIC Vivrier d'Obala & Lekié",
-    region: "Centre (Lekié)",
-    badge: "Producteur Vérifié",
-    speciality: "Manioc de table, Plantain gros michel, Bâtons de manioc",
-    productsCount: 14,
-    link: "/catalogue?filter=coops"
-  },
-  {
-    name: "Coopérative des Planteurs du Moungo",
-    region: "Littoral (Moungo)",
-    badge: "Coopérative Certifiée",
-    speciality: "Poivre blanc de Penja IGP, Bananes douces, Café",
-    productsCount: 12,
-    link: "/catalogue?filter=coops"
-  },
-  {
-    name: "Ferme Avicole des Bamboutos",
-    region: "Ouest (Mbouda / Bafoussam)",
-    badge: "Éleveur Agréé",
-    speciality: "Poulets de chair, Aliments provende, Œufs calibrés",
-    productsCount: 9,
-    link: "/catalogue?filter=coops"
-  }
-];
-
 // Articles conseils
 const adviceArticles = [
   {
@@ -202,7 +167,18 @@ const adviceArticles = [
 
 export default function HomePage() {
   const router = useRouter();
-  const { products } = useStore();
+  const { users, products, hydrated } = useStore();
+  const featuredCooperatives = useMemo(()=>getPublicShops(users,products)
+    .map(shop=>{
+      const owner=users.find(user=>String(user.id)===shop.id);
+      const organizationLabels={cooperative:"Coopérative AgriMarket",association:"Association agricole",enterprise:"Entreprise agricole",merchant:"Commerçant professionnel"};
+      const productNames=shop.products.slice(0,3).map(product=>product.name).filter(Boolean).join(", ");
+      const description=owner?.sellerProfile?.description?.trim() || productNames || shop.description;
+      return {id:shop.id,name:shop.name,region:[shop.city,shop.region].filter(Boolean).join(" · ") || "Localisation à préciser",badge:organizationLabels[owner?.sellerProfile?.organizationType] || "Vendeur AgriMarket",speciality:description,productsCount:shop.products.length,link:`/boutiques/${encodeURIComponent(shop.id)}`};
+    })
+    .sort((a,b)=>b.productsCount-a.productsCount || a.name.localeCompare(b.name,"fr"))
+    .slice(0,4),[users,products]);
+  const cooperativeCards=featuredCooperatives.length ? featuredCooperatives : !hydrated ? Array.from({length:4},(_,index)=>({id:`loading-${index}`,isLoading:true})) : [];
   const [heroSearch, setHeroSearch] = useState("");
   const [heroRegion, setHeroRegion] = useState("Tout le Cameroun");
   const [activeCategoryTab, setActiveCategoryTab] = useState("all");
@@ -663,9 +639,9 @@ export default function HomePage() {
             <div className="agri-section-head">
               <div>
                 <h2>Coopératives & Vendeurs Vedettes</h2>
-                <p>Achetez en toute confiance auprès de structures agricoles enregistrées et vérifiées sur le terrain.</p>
+                <p>Découvrez les coopératives et vendeurs agricoles qui proposent leurs offres sur AgriMarket.</p>
               </div>
-              <Link href="/catalogue?filter=coops" className="agri-see-all-link">
+              <Link href="/boutiques" className="agri-see-all-link">
                 <span>Voir toutes les coopératives</span>
                 <ArrowRight width={14} height={14} />
               </Link>
@@ -673,50 +649,20 @@ export default function HomePage() {
           </ScrollReveal>
 
           <div className="agri-coops-grid">
-            {featuredCooperatives.map((coop, idx) => (
-              <ScrollReveal 
-                key={coop.name} 
-                animation="fade-up" 
-                delay={idx * 140} 
-                duration={600} 
-                style={{ display: "flex", height: "100%" }}
-              >
-                <Link href={coop.link} className="agri-coop-card">
+            {cooperativeCards.map((coop, idx) => (
+              <ScrollReveal key={coop.id} animation="fade-up" delay={idx * 140} duration={600} style={{ display: "flex", height: "100%" }}>
+                {coop.isLoading ? <div className="agri-coop-skeleton" aria-hidden="true"><div className="agri-coop-skeleton-head"><i/><span><i/><i/></span></div><i/><i/><i/></div> : <Link href={coop.link} className="agri-coop-card">
                   <div className="agri-coop-head">
-                    <div className="agri-coop-avatar">
-                      <Building2 width={22} height={22} />
-                    </div>
-                    <div className="agri-coop-title">
-                      <strong>{coop.name}</strong>
-                      <span style={{ display: "inline-flex", alignItems: "center", gap: "3px" }}>
-                        <MapPin width={12} height={12} />
-                        {coop.region}
-                      </span>
-                    </div>
+                    <div className="agri-coop-avatar"><Building2 width={22} height={22}/></div>
+                    <div className="agri-coop-title"><strong>{coop.name}</strong><span><MapPin width={12} height={12}/>{coop.region}</span></div>
                   </div>
-                  <div style={{ marginBottom: "10px" }}>
-                    <span style={{ 
-                      background: "#f0f7f2", 
-                      color: "var(--agri-green)", 
-                      fontSize: "11px", 
-                      fontWeight: 700, 
-                      padding: "3px 8px",
-                      display: "inline-flex",
-                      alignItems: "center",
-                      gap: "4px"
-                    }}>
-                      <Check width={12} height={12} />
-                      {coop.badge}
-                    </span>
-                  </div>
+                  <div className="agri-coop-badge"><Check width={12} height={12}/>{coop.badge}</div>
                   <p className="agri-coop-desc">{coop.speciality}</p>
-                  <div className="agri-coop-footer">
-                    <span>{coop.productsCount} offres actives</span>
-                    <span>Voir le catalogue →</span>
-                  </div>
-                </Link>
+                  <div className="agri-coop-footer"><span>{coop.productsCount} offres actives</span><span>Voir le catalogue →</span></div>
+                </Link>}
               </ScrollReveal>
             ))}
+            {!cooperativeCards.length && <div className="agri-coops-empty"><Building2 size={22}/><p>Les coopératives et vendeurs partenaires apparaîtront ici dès que leurs boutiques seront publiées.</p><Link href="/boutique">Créer une boutique <ArrowRight size={14}/></Link></div>}
           </div>
         </div>
       </section>

@@ -41,6 +41,7 @@ import Link from "next/link";
 import { useStore } from "@/lib/store";
 import { money } from "@/lib/format";
 import { LogoutModal } from "@/composants/LogoutModal";
+import AgriChatWidget from "@/composants/AgriChatWidget";
 
 function HeaderActionButtons({ setShowLogoutModal, isSearchOpen, setIsSearchOpen, searchQuery, setSearchQuery, handleSearchSubmit, searchResults }) {
   const [mounted, setMounted] = useState(false);
@@ -461,6 +462,10 @@ export function SiteLayout({ children }) {
             </div>
 
             <div className="agri-nav-item">
+              <Link href="/boutiques" className={`agri-nav-link ${pathname.startsWith("/boutiques") ? "active" : ""}`}>Boutiques</Link>
+            </div>
+
+            <div className="agri-nav-item">
               <Link href="/a-propos#filieres" className={`agri-nav-link ${["/vivriers", "/elevage", "/semences", "/intrants", "/materiel", "/transformes"].includes(pathname) ? "active" : ""}`}>
                 Filières
                 <ChevronRight width={13} height={13} style={{ transform: "rotate(90deg)" }} />
@@ -548,7 +553,7 @@ export function SiteLayout({ children }) {
               </Link>
             </div>
             {mounted && user && <div className="agri-nav-item">
-              <a href="/compte" className={`agri-nav-link ${pathname.startsWith("/compte") || ["/profil", "/boutique", "/produits", "/ventes", "/finances", "/achats"].includes(pathname) ? "active" : ""}`}>
+              <a href="/compte" className={`agri-nav-link ${pathname.startsWith("/compte") || ["/profil", "/boutique", "/produits", "/ventes", "/finances", "/achats", "/historique-livraisons"].includes(pathname) ? "active" : ""}`}>
                 Mon espace
               </a>
             </div>}
@@ -583,6 +588,7 @@ export function SiteLayout({ children }) {
           <nav className="agri-mobile-drawer" id="agri-mobile-navigation" aria-label="Navigation mobile">
             <Link href="/" onClick={() => setIsMobileMenuOpen(false)}>Accueil</Link>
             <Link href="/catalogue" onClick={() => setIsMobileMenuOpen(false)}>Catalogue Complet</Link>
+            <Link href="/boutiques" onClick={() => setIsMobileMenuOpen(false)}>Boutiques</Link>
             <Link href="/a-propos#filieres" onClick={() => setIsMobileMenuOpen(false)}>Filières</Link>
             <Link href="/vivriers" onClick={() => setIsMobileMenuOpen(false)}>Vivriers & Récoltes</Link>
             <Link href="/elevage" onClick={() => setIsMobileMenuOpen(false)}>Élevage & Ferme</Link>
@@ -606,6 +612,7 @@ export function SiteLayout({ children }) {
       <main className="site-main">{children}</main>
 
       <AgriMarketFooter mounted={mounted} />
+      <AgriChatWidget />
 
 
     </div>
